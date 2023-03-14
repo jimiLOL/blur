@@ -1,14 +1,14 @@
 const { Alchemy, Network, NftSaleMarketplace } = require("alchemy-sdk");
 
 const {start} = require('./src/socket');
-const {newCookies} = require('./src/getSession');
 
 (async () => {
 
-//   await start();
-console.log(await newCookies());
+  await start(); // начинаем получать данные с биржи
 
 })();
+
+ 
 
 
 const {getBalance} = require('./src/web3controller');

@@ -14,32 +14,25 @@ function DynamicSchema(nameCollection, db) {
     //   userCount: Number,
     //   theme: String
     // })
-    const userReaction = new Schema({
-        userId: String,
-        emoticon: String,
-        date_reaction: Number
-    });
+    // const userReaction = new Schema({
+    //     userId: String,
+    //     emoticon: String,
+    //     date_reaction: Number
+    // });
 
-    const schemaReaction = new Schema({
+    const schemaSession = new Schema({
         _id: mongoose.Types.ObjectId,
-        chat_id: {
-            type: Number,
+        wallet_publicKey: {
+            type: String,
             required: true,
         },
-        message_id: {
-            type: Number,
-            required: true,
-        },
-        username: String,
-        userId: String,
-        message_text: String,
-        userReaction: [userReaction],
-        count_reaction: Number,
+        accessToken: String
+      
 
     });
 
 
-    return db.model(nameCollection, schemaReaction);
+    return db.model(nameCollection, schemaSession);
 
 }
 
@@ -50,7 +43,7 @@ function DynamicSchema(nameCollection, db) {
 // module.exports = TelegramSession;
 
 
-function getModelTelegramReaction(connection, prefix = 'messageReaction') {
+function getModelBlurSession(connection, prefix = 'blurSession') {
 
 
     return new Promise((resolve, reject) => {
@@ -58,7 +51,7 @@ function getModelTelegramReaction(connection, prefix = 'messageReaction') {
             if (!connectionDB()) {
                 setTimeout(() => {
                     console.log('await connect ...');
-                    getModelTelegramReaction(connection, prefix).then(res => {
+                    getModelBlurSession(connection, prefix).then(res => {
                         resolve(res)
                     })
                 }, 1000);
@@ -80,4 +73,4 @@ function getModelTelegramReaction(connection, prefix = 'messageReaction') {
 
 }
 
-module.exports = { getModelTelegramReaction };
+module.exports = { getModelBlurSession };

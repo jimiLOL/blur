@@ -1,10 +1,10 @@
 require("dotenv/config")
-const Web3ProviderEngine = require("web3-provider-engine");
-const RPCSubprovider = require("web3-provider-engine/subproviders/rpc");
+// const Web3ProviderEngine = require("web3-provider-engine");
+// const RPCSubprovider = require("web3-provider-engine/subproviders/rpc");
 const Web3 = require('web3');
 
-const MnemonicWalletSubprovider = require("@0x/subproviders")
-    .MnemonicWalletSubprovider;
+// const MnemonicWalletSubprovider = require("@0x/subproviders")
+//     .MnemonicWalletSubprovider;
 // const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 // const AlchemyWeb3Provider = require('@alch/alchemy-web3/provider-engine');
@@ -16,44 +16,55 @@ const MnemonicWalletSubprovider = require("@0x/subproviders")
 const { loginBlur } = require('./loginBlur');
 
 const { getBlurSign } = require('./getBlurSign');
+const ActiveAccount = require('./activeAccount');
 
 
 let web3Client;
 
+const newActiveAccount = new ActiveAccount();
+let accountArray;
 
+setInterval(() => {
+    accountArray = newActiveAccount.UpdateCookiesAccounts();
+    // получаем обновленные данные аккаунтов
+
+}, 60000);
 const newCookies = async () => {
-    const cookies = await getBlurSign().then(async ({ data, headers }) => {
-        console.log(data, headers);
-        return await getSession(data.message).then(async (sigObj) => {
-            console.log(sigObj);
-            data.signature = sigObj.signature;
-            console.log(data);
-            // const hmac = crypto.createHmac('sha256', process.env.PRIVATE_KEY);
-            // hmac.update(data.message);
-            // const digest = hmac.digest('hex');
-            // const data = {
-            //     message: data.message,
-            //     walletAddress: account.address,
-            //     expiresOn: new Date().toISOString(),
-            //   };
+    accountArray = await newActiveAccount.getAccount();
+    // console.log('В работе ' + accountArray.length + ' аккаунтов');
+    return accountArray;
+    //   return await getBlurSign(cookies).then(async ({ data, headers }) => {
+    //         console.log(data, headers);
+    //         return await getSign(data.message).then(async (sigObj) => {
+    //             console.log(sigObj);
+    //             data.signature = sigObj.signature;
+    //             console.log(data);
+    //             // const hmac = crypto.createHmac('sha256', process.env.PRIVATE_KEY);
+    //             // hmac.update(data.message);
+    //             // const digest = hmac.digest('hex');
+    //             // const data = {
+    //             //     message: data.message,
+    //             //     walletAddress: account.address,
+    //             //     expiresOn: new Date().toISOString(),
+    //             //   };
 
-            return await loginBlur(data, headers).catch(err => {
-                return err.response.data
-            });
-        });
+    //             return await loginBlur(data, headers).catch(err => {
+    //                 return err.response.data
+    //             });
+    //         });
 
-    });
-
-
+    //     });
 
 
-    return cookies;
+
+
+    // return cookies;
 }
 
 
 
 
-async function getSession(msg = 'test') {
+async function getSign(msg = 'test') {
     web3Client = new Web3(process.env.WEB3_PROVIDER);
     const sigObj = await messageSign(msg);
     return sigObj

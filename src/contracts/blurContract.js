@@ -12,20 +12,74 @@ const decoder = new InputDataDecoder(contractABI);
 // console.log(decoder);
 
 
-const BlurPool = {
-  balanceOf: async (address) => {
+const BlurPoolClass = {
+
+  wallet: {},
+ async balanceOf(address) {
     try {
+      if (this.wallet.hasOwnProperty(address) && this.wallet[address].balance !== null) {
+        console.log('class');
+        console.log(this.wallet[address]);
+        return this.wallet[address];
+
+      } else {
+        this.wallet[address] = { balance: null }
+      }
+   
       const balance = await contract.methods.balanceOf(address).call();
       const balanceInEth = web3.utils.fromWei(balance, 'ether');
-      console.log(`Balance of ${address} is ${balanceInEth} ETH`);
-      return {balance: balanceInEth};
+      this.wallet[address].balance = balanceInEth;
+      // console.log(`Balance of ${address} is ${balanceInEth} ETH`);
+      this.clearBalance(address);
+      return this.wallet[address];
     } catch (e) {
       console.log(e);
-      return {balance: null};
+      return { balance: null };
     }
 
+  },
+   
+  get walletSetBalance() {
+    return this.wallet;
+  },
+   
+  clearBalance(address) {
+    setTimeout(() => {
+      this.wallet[address].balance = null;
+
+    }, 30000);
   }
 }
 
+// const BlurPool = {
+//   wallet: {},
+//   balanceOf: async (address) => {
+//     try {
+//       if (this.wallet.hasOwnProperty(address) && this.wallet[address].balance) {
+//         return this.wallet[address];
 
-module.exports = {contract, web3, decoder, BlurPool};
+//       } else {
+//         this.wallet[address] =  {balance: null}
+//       }
+//      const balance = await contract.methods.balanceOf(address).call();
+//       const balanceInEth = web3.utils.fromWei(balance, 'ether');
+//       this.wallet[address].balance = balanceInEth;
+//       // console.log(`Balance of ${address} is ${balanceInEth} ETH`);
+//       this.clearBalance(address);
+//       return this.wallet[address];
+//     } catch (e) {
+//       console.log(e);
+//       return {balance: null};
+//     }
+
+//   },
+//   clearBalance: (address)=> {
+//     setTimeout(() => {
+//       this.wallet[address].balance = null;
+
+//     }, 30000);
+//   }
+// }
+
+
+module.exports = { contract, web3, decoder, BlurPoolClass };
