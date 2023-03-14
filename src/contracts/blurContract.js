@@ -18,8 +18,8 @@ const BlurPoolClass = {
  async balanceOf(address) {
     try {
       if (this.wallet.hasOwnProperty(address) && this.wallet[address].balance !== null) {
-        console.log('class');
-        console.log(this.wallet[address]);
+        // console.log('class');
+        // console.log(this.wallet[address]);
         return this.wallet[address];
 
       } else {

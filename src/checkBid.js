@@ -32,20 +32,28 @@ const check = async (accountAvailable) => {
 
         if (collectionBidPriceUpdatesWatch()) {
             Object.keys(collectionBidPriceUpdatesWatch()).forEach(key => {
-                console.log('keys ' + key);
+                // console.log('keys ' + key);
                 const ele = collectionBidPriceUpdatesWatch()[key];
                 let keys = Object.keys(ele);
                 keys.sort((a, b) => {
                     return Number(ele[a].price) - Number(ele[b].price);
                 });
-                console.log('Price Array ' + keys);
+                // console.log('Price Array ' + keys);
     
-                keys.forEach(price => {
+                keys.forEach(async price => {
                     // console.log(ele[price]);
                     // console.log(ele[price].total_eth);
                     if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance*3) {
                         console.log('total_eth ' + ele[price].total_eth);
                         console.log('price ' + ele[price].price);
+                        const bid = await clientRedis.get(`blur_${account.walletAddress}_bid_${price}`);
+                        if (!bid) {
+                            console.log('already bid');
+                        } else {
+                            let bid_obj = JSON.parse(bid);
+                            console.log(bid_obj);
+
+                        }
                     }
     
                 });
