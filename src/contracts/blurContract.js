@@ -15,7 +15,7 @@ const decoder = new InputDataDecoder(contractABI);
 const BlurPoolClass = {
 
   wallet: {},
- async balanceOf(address) {
+  async balanceOf(address) {
     try {
       if (this.wallet.hasOwnProperty(address) && this.wallet[address].balance !== null) {
         // console.log('class');
@@ -25,7 +25,7 @@ const BlurPoolClass = {
       } else {
         this.wallet[address] = { balance: null }
       }
-   
+
       const balance = await contract.methods.balanceOf(address).call();
       const balanceInEth = web3.utils.fromWei(balance, 'ether');
       this.wallet[address].balance = balanceInEth;
@@ -38,11 +38,11 @@ const BlurPoolClass = {
     }
 
   },
-   
+
   get walletSetBalance() {
     return this.wallet;
   },
-   
+
   clearBalance(address) {
     setTimeout(() => {
       this.wallet[address].balance = null;

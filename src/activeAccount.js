@@ -24,7 +24,7 @@ class ActiveAccount {
             accountsResponse.forEach(account => {
                 const resultObj = getBlurCookie(account);
                 if (resultObj) {
-                this.accounts.push(resultObj);
+                    this.accounts.push(resultObj);
 
 
                 }
@@ -63,14 +63,16 @@ const getBlurCookie = (cookies) => {
     walletAddress = cookiesArray.cookies.filter((cookie) => {
         return cookie.name === 'walletAddress';
     })[0]
-   if (walletAddress && walletAddress?.value) {
-       walletAddress = walletAddress.value;
-   } else {
-    return null
-   }
+    cook_str = cook_str.concat(walletAddress.name + '=' + walletAddress.value + ';');
+
+    if (walletAddress && walletAddress?.value) {
+        walletAddress = walletAddress.value;
+    } else {
+        return null
+    }
 
     cookie.forEach(element => {
-    
+
         let sub_srt = element.name + '=' + element.value + ';'
         cook_str = cook_str.concat(sub_srt)
 

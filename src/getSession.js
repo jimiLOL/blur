@@ -133,4 +133,4 @@ async function decryptSecretKey(keystoreJsonV3, password) {
     return decrypt
 };
 
-module.exports = { newCookies }
+module.exports = { newCookies, getSign }
