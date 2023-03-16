@@ -20,22 +20,9 @@ class ActiveAccount {
                 // console.log(res.data.data);
                 accountsResponse = res.data.data;
             });
-            if (Array.isArray(accountsResponse) && accountsResponse.length > 0) {
-                accountsResponse.forEach(account => {
-                    const resultObj = getBlurCookie(account);
-                    if (resultObj) {
-                        this.accounts.push(resultObj);
 
-
-                    }
-
-
-                });
-                return this.accounts;
-
-            } else {
-                return null
-            }
+            return this.calculateAccount(accountsResponse)
+            
 
         } else {
             return this.accounts;
@@ -46,10 +33,33 @@ class ActiveAccount {
 
     }
     async UpdateCookiesAccounts() {
+        let accountsResponse;
+
         await axios.get(`${URL_SERVICE}/api/get_enable_account`).then(res => {
-            this.accounts = res.data;
+            accountsResponse = res.data.data;
+
         })
-        return this.accounts;
+        return this.calculateAccount(accountsResponse)
+
+    }
+    calculateAccount(accountsResponse) {
+        if (Array.isArray(accountsResponse) && accountsResponse.length > 0) {
+            this.accounts.splice(0, this.accounts.length-1);
+            accountsResponse.forEach(account => {
+                const resultObj = getBlurCookie(account);
+                if (resultObj) {
+                    this.accounts.push(resultObj);
+
+
+                }
+
+
+            });
+            return this.accounts;
+
+        } else {
+            return null
+        }
 
     }
 
