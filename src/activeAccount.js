@@ -14,24 +14,29 @@ class ActiveAccount {
 
 
     async getAccount() {
-        // console.log(this.accounts);
         let accountsResponse;
         if (this.accounts.length === 0) {
             await axios.get(`${URL_SERVICE}/api/get_enable_account`).then(res => {
                 // console.log(res.data.data);
                 accountsResponse = res.data.data;
             });
-            accountsResponse.forEach(account => {
-                const resultObj = getBlurCookie(account);
-                if (resultObj) {
-                    this.accounts.push(resultObj);
+            if (Array.isArray(accountsResponse) && accountsResponse.length > 0) {
+                accountsResponse.forEach(account => {
+                    const resultObj = getBlurCookie(account);
+                    if (resultObj) {
+                        this.accounts.push(resultObj);
 
 
-                }
+                    }
 
 
-            });
-            return this.accounts;
+                });
+                return this.accounts;
+
+            } else {
+                return null
+            }
+
         } else {
             return this.accounts;
 
@@ -51,7 +56,7 @@ class ActiveAccount {
 }
 
 const getBlurCookie = (cookies) => {
-    // console.log(cookies.cookie);
+    // console.log(cookies);
     let walletAddress = null;
     let cookiesArray = JSON.parse(cookies.cookie);
     const cookie = cookiesArray.cookies.filter((cookie) => {
@@ -60,25 +65,39 @@ const getBlurCookie = (cookies) => {
 
     let cook_str = '';
 
-    walletAddress = cookiesArray.cookies.filter((cookie) => {
-        return cookie.name === 'walletAddress';
-    })[0]
-    cook_str = cook_str.concat(walletAddress.name + '=' + walletAddress.value + ';');
+    const coreApi_prod_blur_io = cookiesArray.cookies.filter((cookie) => {
+        return cookie.domain === 'core-api.prod.blur.io';
+    });
+    coreApi_prod_blur_io.forEach(cookie => {
+        cook_str = cook_str.concat(cookie.name + '=' + cookie.value + '; ');
+        if (cookie.name == 'walletAddress') {
+            walletAddress = cookie.value;
 
-    if (walletAddress && walletAddress?.value) {
-        walletAddress = walletAddress.value;
-    } else {
-        return null
-    }
+        }
+
+
+    });
+
+
+    // if (!walletAddress) {
+    //     return null
+    // }
 
     cookie.forEach(element => {
 
-        let sub_srt = element.name + '=' + element.value + ';'
-        cook_str = cook_str.concat(sub_srt)
+        if (element.name == '__cf_bm') {
+            let sub_srt = element.name + '=' + element.value + '; '
+            cook_str = cook_str.concat(sub_srt)
+        } else if (element.name == 'cf_clearance') {
+            let sub_srt = element.name + '=' + element.value
+            cook_str = cook_str.concat(sub_srt)
+        }
+
+
 
     });
     // console.log(cook_str);
-    return { cook_str: cook_str, phone: cookies.phone, walletAddress: walletAddress };
+    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent };
 }
 
 module.exports = ActiveAccount;

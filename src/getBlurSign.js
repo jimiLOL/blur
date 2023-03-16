@@ -22,10 +22,10 @@ async function getBlurSign(account) {
     // console.log('cookies ' + cook_str);
     const headers = {
         'Host': 'core-api.prod.blur.io',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0',
+        'User-Agent': account.UserAgent,
         'Accept': '*/*',
         'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
-        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Encoding': 'gzip',
         'Referer': 'https://blur.io/',
         'Content-Type': 'application/json',
         'Origin': 'https://blur.io',
@@ -37,14 +37,15 @@ async function getBlurSign(account) {
 
     };
     console.log(headers);
-    const body = { "walletAddress": account.walletAddress };
+    const body = { walletAddress: account.walletAddress };
 
 
     return await axios.post('https://core-api.prod.blur.io/auth/challenge', body, { headers: headers }).then(res => {
-        // console.log(res.data);
+        // console.log(res);
         return { data: res.data, headers: headers };
     }).catch(err => {
         console.log(err.message);
+        // console.log(err);
     })
 
 }

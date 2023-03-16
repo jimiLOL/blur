@@ -16,8 +16,14 @@ async function checkBid() {
     while (true) {
         const accountAvailable = await newCookies();
 
+        if (accountAvailable) {
+            await check(accountAvailable)
 
-        await check(accountAvailable)
+        } else {
+            console.log('Нет включенных в работу аккаунтов!');
+        }
+
+
 
         await helper.timeout(200);
         // console.log(collectionBidPriceUpdatesWatch());
