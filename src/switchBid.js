@@ -8,7 +8,9 @@ const { loginBlur } = require('./loginBlur');
 const { getBlurSign } = require('./getBlurSign');
 const { getSign } = require('./getSession');
 
-const { getFromData } = require('./getFromData')
+const { getFromData } = require('./getFromData');
+const {checkLogin} = require('./checkLogin');
+const {submitBid} = require('./submitBid');
 
 const taskLogin = new Map([]);
 
@@ -38,7 +40,7 @@ const switchBid = {
             console.log('Enable autorizate');
             const loginData = await connectBlur(account);
             if (loginData) {
-                this.loginAccount[account.walletAddress] = { date: new Date().getTime(), assessHashData: loginData };
+                this.loginAccount[account.walletAddress] = { date: new Date().getTime(), accountData: loginData, count: 0 };
                 console.log(this.loginAccount[account.walletAddress]);
 
             }
@@ -46,13 +48,40 @@ const switchBid = {
             console.log('Enable autorization');
             const loginData = await connectBlur(account);
             if (loginData) {
-                this.loginAccount[account.walletAddress] = { date: new Date().getTime(), assessHashData: loginData };
+                this.loginAccount[account.walletAddress] = { date: new Date().getTime(), accountData: loginData, count: 0 };
                 console.log(this.loginAccount[account.walletAddress]);
 
             }
 
-        } else {
+        } else if (this.loginAccount[account.walletAddress]?.date > (new Date().getTime() - 1000 * 60 * 60) && this.loginAccount[account.walletAddress]?.count == 0) {
             console.log('Disable autorizate');
+            this.loginAccount[account.walletAddress].count = 1; // жестко говорим, что с 1 аккаунта 1 покупка, позже сделаем чрез редис
+            console.log(contractAddress);
+            console.log(bid);
+            const date = new Date();
+            date.setDate(date.getFullYear() + 1); // 1 yaer
+            const isoDate = date.toISOString();
+            const body = {
+                price: {
+                    unit: 'BETH',
+                    amount: '0.01' // bid.price
+                },
+                quantity: 1,
+                expirationTime: isoDate,
+                contractAddress: contractAddress,
+            }
+            const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
+            console.log(setBid);
+            const sign = await getSign(setBid.signatures[0].marketplaceData, account.walletAddress)
+            console.log(sign);
+            const bodySub = {
+                signature: sign.signature,
+                marketplaceData: setBid.signatures[0].marketplaceData
+            }
+            console.log(bodySub);
+            const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
+            console.log(sub);
+            process.exit(0)
         }
 
 
@@ -66,9 +95,19 @@ const switchBid = {
 }
 
 const connectBlur = async (account) => {
-    await getBlurSign(account).then(async ({ data, headers }) => {
+    const login = await checkLogin(account);
+    console.log(login);
+    // process.exit(0)
+    if (login && login?.data?.success) {
+        return account
+    }
+    return await getBlurSign(account).then(async ({ data, headers }) => {
+        if (!data || !headers) {
+            return null
+        }
         console.log(data, headers);
-        return await getSign(data.message).then(async (sigObj) => {
+
+        return await getSign(data.message, account.walletAddress).then(async (sigObj) => {
             console.log(sigObj);
             data.signature = sigObj.signature;
             console.log(data);
@@ -80,11 +119,17 @@ const connectBlur = async (account) => {
             //     walletAddress: account.address,
             //     expiresOn: new Date().toISOString(),
             //   };
-            const loginData = await loginBlur(data, headers).catch(err => {
+            const loginData = await loginBlur(data, headers).then(res=> {
+                console.log('loginBlur');
+                console.log(res.data);
+            }).catch(err => {
+                console.log(err);
                 return null
             });
+            console.log(loginData);
             if (loginData) {
-                return loginData
+                account.authToken = loginData.authToken
+                return account
             } else {
                 return null
             }

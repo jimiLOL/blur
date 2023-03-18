@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+require("dotenv/config");
 
 const Addresses = {};
 
@@ -46,9 +47,9 @@ function DynamicSchema(nameCollection, db) {
 function getModelBlurSession(connection, prefix = 'blurSession') {
 
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         if (!Addresses[prefix]) {
-            if (!connectionDB()) {
+            if (!await connectionDB.connect(process.env.MONGODB_URI)) {
                 setTimeout(() => {
                     console.log('await connect ...');
                     getModelBlurSession(connection, prefix).then(res => {
@@ -57,7 +58,7 @@ function getModelBlurSession(connection, prefix = 'blurSession') {
                 }, 1000);
 
             } else {
-                Addresses[prefix] = new DynamicSchema(prefix, connectionDB());
+                Addresses[prefix] = new DynamicSchema(prefix, await connectionDB.connect(process.env.MONGODB_URI));
 
                 resolve(Addresses[prefix])
 

@@ -74,6 +74,7 @@ const getBlurCookie = (cookies) => {
     });
 
     let cook_str = '';
+    let authToken;
 
     const coreApi_prod_blur_io = cookiesArray.cookies.filter((cookie) => {
         return cookie.domain === 'core-api.prod.blur.io';
@@ -82,6 +83,10 @@ const getBlurCookie = (cookies) => {
         cook_str = cook_str.concat(cookie.name + '=' + cookie.value + '; ');
         if (cookie.name == 'walletAddress') {
             walletAddress = cookie.value;
+
+        }
+        if (cookie.name == 'authToken') {
+            authToken = cookie.value
 
         }
 
@@ -94,20 +99,22 @@ const getBlurCookie = (cookies) => {
     // }
 
     cookie.forEach(element => {
+        let sub_srt = element.name + '=' + element.value + '; '
+        cook_str = cook_str.concat(sub_srt)
 
-        if (element.name == '__cf_bm') {
-            let sub_srt = element.name + '=' + element.value + '; '
-            cook_str = cook_str.concat(sub_srt)
-        } else if (element.name == 'cf_clearance') {
-            let sub_srt = element.name + '=' + element.value
-            cook_str = cook_str.concat(sub_srt)
-        }
+        // if (element.name == '__cf_bm') {
+        //     let sub_srt = element.name + '=' + element.value + '; '
+        //     cook_str = cook_str.concat(sub_srt)
+        // } else if (element.name == 'cf_clearance') {
+        //     let sub_srt = element.name + '=' + element.value
+        //     cook_str = cook_str.concat(sub_srt)
+        // }
 
 
 
     });
     // console.log(cook_str);
-    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent };
+    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent, authToken: authToken};
 }
 
 module.exports = ActiveAccount;

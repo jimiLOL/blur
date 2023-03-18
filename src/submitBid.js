@@ -4,7 +4,7 @@ const axios = require('axios');
 
 const walSignature = null;
 
-async function getBlurSign(account) {
+async function submitBid(account, body) {
 
     if (account.cook_str.length == 0) {
         console.log('!_No cookies_!');
@@ -24,8 +24,10 @@ async function getBlurSign(account) {
         'Host': 'core-api.prod.blur.io',
         'User-Agent': account.UserAgent,
         'Accept': '*/*',
+        'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
+        'sec-ch-ua-platform':'"Windows"',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Referer': 'https://blur.io/',
         'Content-Type': 'application/json',
         'Origin': 'https://blur.io',
@@ -36,18 +38,17 @@ async function getBlurSign(account) {
         'Sec-Fetch-Site': 'same-site'
 
     };
-    console.log(headers);
-    const body = { walletAddress: account.walletAddress };
+    // console.log(headers);
 
 
-    return await axios.post('https://core-api.prod.blur.io/auth/challenge', body, { headers: headers }).then(res => {
+    return await axios.post('https://core-api.prod.blur.io/v1/collection-bids/submit', body, { headers: headers }).then(res => {
         // console.log(res);
         return { data: res.data, headers: headers };
     }).catch(err => {
         console.log(err.message);
-        // console.log(err);
+        console.log(err?.response?.data);
     })
 
 }
 
-module.exports = { getBlurSign };
+module.exports = { submitBid };

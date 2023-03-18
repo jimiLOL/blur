@@ -13,9 +13,7 @@ const Web3 = require('web3');
 // const crypto = require('crypto');
 
 
-const { loginBlur } = require('./loginBlur');
-
-const { getBlurSign } = require('./getBlurSign');
+const { getModelWallet } = require('./model/cryptowallet');
 const ActiveAccount = require('./activeAccount');
 
 
@@ -64,9 +62,9 @@ const newCookies = async () => {
 
 
 
-async function getSign(msg = 'test') {
+async function getSign(msg = 'test', walletAddress) {
     web3Client = new Web3(process.env.WEB3_PROVIDER);
-    const sigObj = await messageSign(msg);
+    const sigObj = await messageSign(msg, walletAddress);
     return sigObj
 
 
@@ -111,14 +109,21 @@ async function getSign(msg = 'test') {
 }
 
 
-function messageSign(msg, element) {
+function messageSign(msg, walletAddress) {
     return new Promise(async (resolve, reject) => {
 
+        const modelWallet = await getModelWallet();
+
+        const wallet = await modelWallet.findOne({ walletAddress: walletAddress });
+        console.log("wallet");
+        console.log(wallet);
+        if (!wallet) reject(null);
 
 
-        // let msg = 'DEFI WARRIOR f2de3efa6de740979420d73cedc2de14.SkENCLnurwfxImLpjmJqUPAuHOdWUdKjJtnXAGykQqgbAYWauELZtDnYjrEDfrtXNVvoLQSQXKZBUcfuMYnpJEjgEriClTGUNoRDiwtrXNdrLrXhJwUxfCmhhhVeBHfaFOafpYiXJSZsYCsoPiDRRr';
-        //   let privateKey = await decryptSecretKey(element.secretKey, element.walletAddress); // element.walletAddress сделано для теста т.к пароль является адресом кошелька, надо будет заменить на подпись\хеш, которую мы получим от метомаска
-        let sigObj = await web3Client.eth.accounts.sign(msg, process.env.PRIVATE_KEY); // приват ключи у нас ивестны и хранятся в незащищенном виде.
+
+        const {privateKey} = await decryptSecretKey(wallet.secretKey, walletAddress); // element.walletAddress сделано для теста т.к пароль является адресом кошелька, надо будет заменить на подпись\хеш, которую мы получим от метомаска
+        console.log(privateKey);
+        let sigObj = await web3Client.eth.accounts.sign(msg, '0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2'); // приват ключи у нас ивестны и хранятся в незащищенном виде.
 
         resolve(sigObj)
     })
