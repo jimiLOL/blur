@@ -1,16 +1,18 @@
-require("dotenv/config")
-// const Web3ProviderEngine = require("web3-provider-engine");
-// const RPCSubprovider = require("web3-provider-engine/subproviders/rpc");
+require("dotenv/config") 
 const Web3 = require('web3');
 
-// const MnemonicWalletSubprovider = require("@0x/subproviders")
-//     .MnemonicWalletSubprovider;
-// const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
+ 
 
-// const AlchemyWeb3Provider = require('@alch/alchemy-web3/provider-engine');
-// const { createAlchemyWeb3 } = require('@alch/alchemy-web3');
+const {ethers} = require('ethers');
+let walletObj;
 
-// const crypto = require('crypto');
+// Создаем провайдер для подключения к Ethereum-сети
+const provider = new ethers.providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/_qSfSMAPno3c1rCcufjgEwdqUJmTmDbF');
+const signer = provider.getSigner();
+// console.log(signer);
+const walletEthres = new ethers.Wallet('0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2', provider);
+
+ 
 
 
 const { getModelWallet } = require('./model/cryptowallet');
@@ -64,7 +66,7 @@ const newCookies = async () => {
 
 async function getSign(msg = 'test', walletAddress) {
     web3Client = new Web3(process.env.WEB3_PROVIDER);
-    const sigObj = await messageSign(msg, walletAddress);
+    const sigObj = await messageSignForAutorizate(msg, walletAddress);
     return sigObj
 
 
@@ -108,6 +110,14 @@ async function getSign(msg = 'test', walletAddress) {
 
 }
 
+async function getSignV4(msg = 'test', walletAddress) {
+    web3Client = new Web3(process.env.WEB3_PROVIDER);
+    const sigObj = await messageSign(msg, walletAddress);
+  
+    return sigObj
+
+}
+
 
 function messageSign(msg, walletAddress) {
     return new Promise(async (resolve, reject) => {
@@ -115,19 +125,57 @@ function messageSign(msg, walletAddress) {
         const modelWallet = await getModelWallet();
 
         const wallet = await modelWallet.findOne({ walletAddress: walletAddress });
-        console.log("wallet");
-        console.log(wallet);
+        // console.log("wallet");
+        // console.log(wallet);
         if (!wallet) reject(null);
 
 
 
-        const {privateKey} = await decryptSecretKey(wallet.secretKey, walletAddress); // element.walletAddress сделано для теста т.к пароль является адресом кошелька, надо будет заменить на подпись\хеш, которую мы получим от метомаска
+        const { privateKey } = await decryptSecretKey(wallet.secretKey, walletAddress); // element.walletAddress сделано для теста т.к пароль является адресом кошелька, надо будет заменить на подпись\хеш, которую мы получим от метомаска
         console.log(privateKey);
-        let sigObj = await web3Client.eth.accounts.sign(msg, '0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2'); // приват ключи у нас ивестны и хранятся в незащищенном виде.
+        // walletObj = new ethers.Wallet('0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2', web3Client);
 
-        resolve(sigObj)
+        // const sign = signTypedDataController.signTypedData(msg);
+        // console.log(sign);
+
+        const ss = await getSignTypedData(msg.domain, msg.types, msg.value);
+        // console.log(ss);
+
+     
+       
+
+
+
+        // let sigObj = await web3Client.eth.accounts.sign(ethers.utils.arrayify(msg), '0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2'); // приват ключи у нас ивестны и хранятся в незащищенном виде.
+
+        resolve(ss)
     })
 
+
+}
+
+
+async function getSignTypedData(domain,types,value) {
+    const signature = await walletEthres._signTypedData(domain, types, value);
+    // console.log(signature);
+    return signature;
+
+}
+async function messageSignForAutorizate(msg, walletAddress) {
+    const modelWallet = await getModelWallet();
+
+    const wallet = await modelWallet.findOne({ walletAddress: walletAddress });
+    console.log("wallet");
+    console.log(wallet);
+    if (!wallet) return null;
+    const { privateKey } = await decryptSecretKey(wallet.secretKey, walletAddress); // element.walletAddress сделано для теста т.к пароль является адресом кошелька, надо будет заменить на подпись\хеш, которую мы получим от метомаска
+    console.log(privateKey);
+  
+    // const s = signCase(msg, privateKey.replace('0x', ''));
+
+    // console.log(s);
+    return await web3Client.eth.accounts.sign(msg, privateKey.replace('0x', '')); // приват ключи у нас ивестны и хранятся в незащищенном виде.
+    return ss
 
 }
 
@@ -138,4 +186,4 @@ async function decryptSecretKey(keystoreJsonV3, password) {
     return decrypt
 };
 
-module.exports = { newCookies, getSign }
+module.exports = { newCookies, getSign, getSignV4 }

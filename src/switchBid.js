@@ -6,12 +6,12 @@ const clientRedis = new Redis(process.env.REDIS);
 const { loginBlur } = require('./loginBlur');
 
 const { getBlurSign } = require('./getBlurSign');
-const { getSign } = require('./getSession');
+const { getSign, getSignV4 } = require('./getSession');
 
 const { getFromData } = require('./getFromData');
 const {checkLogin} = require('./checkLogin');
 const {submitBid} = require('./submitBid');
-
+const {cancelBid} = require('./cancel');
 const taskLogin = new Map([]);
 
 const taskRouter = (account) => {
@@ -35,7 +35,6 @@ const switchBid = {
     loginAccount: {},
     async setBid(contractAddress, account, bid) {
 
-        // await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify(bid));
         if (!this.loginAccount.hasOwnProperty(account.walletAddress) && taskRouter(account)) {
             console.log('Enable autorizate');
             const loginData = await connectBlur(account);
@@ -72,15 +71,18 @@ const switchBid = {
             }
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
             console.log(setBid);
-            const sign = await getSign(setBid.signatures[0].marketplaceData, account.walletAddress)
-            console.log(sign);
+            const sign = await getSignV4(setBid.signatures[0].signData, account.walletAddress)
+            // console.log("sign");
+            // console.log(sign);
             const bodySub = {
-                signature: sign.signature,
+                signature: sign,
                 marketplaceData: setBid.signatures[0].marketplaceData
             }
             console.log(bodySub);
             const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
             console.log(sub);
+        // await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify(bid));
+
             process.exit(0)
         }
 
@@ -90,6 +92,8 @@ const switchBid = {
     },
     async deleteBid(contractAddress, account, bid) {
         await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+
+        await cancelBid(contractAddress, account, bid)
 
     }
 }
