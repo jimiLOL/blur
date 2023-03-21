@@ -47,7 +47,7 @@ const BlurPoolClass = {
     setTimeout(() => {
       this.wallet[address].balance = null;
 
-    }, 30000);
+    }, 1000);
   }
 }
 

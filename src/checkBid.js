@@ -74,14 +74,14 @@ const check = async (accountAvailable) => {
                     // console.log(ele[price]);
                     // console.log(ele[price].total_eth);
                     // у нас отсортированый массив по возрастанию цены, поэтмоу мы просто смотрим где у нас подходит условие под balance*3
-                    if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance*3) {
+                    if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance*3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) > Number(price)) {
                         // console.log('total_eth ' + ele[price].total_eth);
                         // console.log('price ' + ele[price].price);
                         const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
                         if (!bid && ele[price].bidderCount > 10) {
                             // проверем что участников торгов больше 10
-                            console.log('already bid');
-                          await switchBid.setBid(key, account, ele[price])
+                            console.log('already bid ' + price);
+                          await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance)
                         } else if (bid) {
                             let bid_obj = JSON.parse(bid);
                             console.log(bid_obj);
