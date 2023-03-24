@@ -27,7 +27,10 @@ const getFromData = async (body, account) => {
         // console.log(res.data);
         return res.data
     }).catch(e=> {
-        console.log(e);
+        console.log(e.message);
+        if (e?.response?.data) {
+            return e.response.data
+        }
         return null
     })
 

@@ -33,6 +33,7 @@ class ActiveAccount {
 
     }
     async UpdateCookiesAccounts() {
+        console.log('Update cookie account');
         let accountsResponse;
 
         await axios.get(`${URL_SERVICE}/api/get_enable_account`).then(res => {

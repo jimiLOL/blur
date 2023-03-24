@@ -35,6 +35,7 @@ function subscribeList(socket) {
     collectionsList.forEach(element => {
         subscribe(socket, element, 4216, 'denormalizer.collectionBidPriceUpdates')
         subscribe(socket, element, 4212, 'denormalizer.collectionBidStats')
+        // subscribe(socket, element, 4219, 'stats.floorUpdate')
 
     });
 }
@@ -110,6 +111,7 @@ function start() {
 
         socket.on('message', (data) => {
             const event = parseBuffer(data);
+            // console.log(event);
 
             switch (event.code) {
                 case 2:
@@ -129,18 +131,27 @@ function start() {
 
 }
 
+const bestPrice = {};
+
 const handleFortyTwo = (event) => {
 
     if (event.event.includes('denormalizer.collectionBidStats')) {
         console.log('denormalizer.collectionBidStats');
         // console.log(event.payload);
+        if (!bestPrice.hasOwnProperty(event.payload.bestPrice)) {
+            bestPrice[event.payload.contractAddress] = {};
+            bestPrice[event.payload.contractAddress] = event.payload;
+        } else {
+            bestPrice[event.payload.contractAddress] = event.payload;
+
+        }
         return;
     } else if (event.event.includes('orderbook.newTopsOfBooks')) {
-        console.log('orderbook.newTopsOfBooks');
+        // console.log('orderbook.newTopsOfBooks');
         console.log(event.payload);
         return;
     } else if (event.event.includes('denormalizer.collectionBidPriceUpdates')) {
-        console.log('denormalizer.collectionBidPriceUpdates');
+        // console.log('denormalizer.collectionBidPriceUpdates');
         // console.log(event.payload);
         event.payload.updates.forEach(updateData => {
             if (!collectionBidPriceUpdates.hasOwnProperty(event.payload.contractAddress)) {
@@ -228,5 +239,9 @@ function collectionBidPriceUpdatesWatch() {
     return collectionBidPriceUpdates;
 }
 
-module.exports = { start, collectionBidPriceUpdatesWatch }
+function getBestPrice() {
+    return bestPrice
+}
+
+module.exports = { start, collectionBidPriceUpdatesWatch, getBestPrice }
 

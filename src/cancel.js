@@ -2,10 +2,15 @@
 
 const axios = require('axios');
 
-async function cancelBid(contractAddress, bid, account) {
+async function cancelBid(contractAddress, account, bid) {
+  console.log('cancelBid');
+  console.log(bid);
     const body = {prices:[],contractAddress:""};
-    body.prices.push(bid.prices);
+    body.prices.push(bid.price);
     body.contractAddress = contractAddress;
+    console.log(body);
+    // process.exit(1)
+
 
     const headers = {
         'Host': 'core-api.prod.blur.io',
@@ -29,6 +34,10 @@ async function cancelBid(contractAddress, bid, account) {
 
   return await axios.post('https://core-api.prod.blur.io/v1/collection-bids/cancel', body, {headers: headers}).then(res=> {
     return res.data
+  }).catch(e=> {
+    console.log(e.message);
+    return null
+
   });
 }
 

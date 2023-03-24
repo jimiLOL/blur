@@ -33,6 +33,22 @@ const taskRouter = (account) => {
 
 const switchBid = {
     loginAccount: {},
+    async login(account) {
+        const currentTime = new Date().getTime();
+
+        if (!this.loginAccount.hasOwnProperty(account.walletAddress) && taskRouter(account)) {
+            const loginData = await connectBlur(account);
+            if (loginData) {
+                this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0 };
+                console.log(this.loginAccount[account.walletAddress]);
+
+            }
+        }
+        return
+
+
+
+    },
     async setBid(contractAddress, account, bid, myBalance) {
 
         const currentTime = new Date().getTime();
@@ -42,6 +58,7 @@ const switchBid = {
             console.log('Enable autorizate');
             const loginData = await connectBlur(account);
             if (loginData) {
+
                 this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0 };
                 console.log(this.loginAccount[account.walletAddress]);
 
@@ -73,10 +90,11 @@ const switchBid = {
                     unit: 'BETH',
                     amount: bid.price // 
                 },
-                quantity: Math.ceil(myBalance / bid.price),
+                quantity: Math.floor(myBalance / bid.price),
                 expirationTime: isoDate,
                 contractAddress: contractAddress,
             }
+            console.log(body);
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
             console.log(setBid);
             if (!setBid) {
@@ -94,14 +112,22 @@ const switchBid = {
             console.log(bodySub);
             const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
             console.log(sub);
+            // process.exit(0)
             this.loginAccount[account.walletAddress].count = 0;
-            await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify(bid));
+            if (sub?.statusCode == 400) {
+                return
+
+            }
+            if (sub?.data?.success) {
+                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify(bid));
+
+            }
             return
 
 
             // process.exit(0)
-        }  
-       
+        }
+
 
 
 
@@ -109,9 +135,13 @@ const switchBid = {
 
     },
     async deleteBid(contractAddress, account, bid) {
+        if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
+            return null
+        }
+
+        await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid);
         await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
 
-        await cancelBid(contractAddress, account, bid)
 
     }
 }
@@ -121,10 +151,13 @@ const connectBlur = async (account) => {
     console.log(login);
     // process.exit(0)
     if (login && login?.data?.success) {
+        await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
         return account
-    } 
+    }
     return await getBlurSign(account).then(async ({ data, headers }) => {
         if (!data || !headers) {
+            await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
+
             return null
         }
         console.log(data, headers);
@@ -150,16 +183,22 @@ const connectBlur = async (account) => {
             });
             console.log(loginData);
             if (loginData) {
+                await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
+
                 account.authToken = loginData.authToken
                 return account
             } else {
+                await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
+
                 return null
             }
 
         });
 
-    }).catch(e => {
+    }).catch(async e => {
         console.log(e);
+        await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
+
         return null
     });
 

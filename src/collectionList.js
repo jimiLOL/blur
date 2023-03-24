@@ -1,4 +1,4 @@
-const collectionsList = ['0xed5af388653567af2f388e6224dc7c4b3241c544'];
+const collectionsList = ['0x6339e5e072086621540d0362c4e3cea0d643e114'];
 
 
 module.exports = collectionsList;

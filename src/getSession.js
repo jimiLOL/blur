@@ -4,13 +4,12 @@ const Web3 = require('web3');
  
 
 const {ethers} = require('ethers');
-let walletObj;
+// let walletObj;
 
 // Создаем провайдер для подключения к Ethereum-сети
 const provider = new ethers.providers.WebSocketProvider('wss://eth-mainnet.g.alchemy.com/v2/_qSfSMAPno3c1rCcufjgEwdqUJmTmDbF');
-const signer = provider.getSigner();
+// const signer = provider.getSigner();
 // console.log(signer);
-const walletEthres = new ethers.Wallet('0940e5a0a8d1f5b26638671f7e91388c6ba689a86c45361f1d71b8804d439dc2', provider);
 
  
 
@@ -28,7 +27,7 @@ setInterval(() => {
     accountArray = newActiveAccount.UpdateCookiesAccounts();
     // получаем обновленные данные аккаунтов
 
-}, 60000);
+}, 20000);
 const newCookies = async () => {
     accountArray = await newActiveAccount.getAccount();
     // console.log('В работе ' + accountArray.length + ' аккаунтов');
@@ -138,7 +137,7 @@ function messageSign(msg, walletAddress) {
         // const sign = signTypedDataController.signTypedData(msg);
         // console.log(sign);
 
-        const ss = await getSignTypedData(msg.domain, msg.types, msg.value);
+        const ss = await getSignTypedData(msg.domain, msg.types, msg.value, privateKey.replace('0x', ''));
         // console.log(ss);
 
      
@@ -155,7 +154,8 @@ function messageSign(msg, walletAddress) {
 }
 
 
-async function getSignTypedData(domain,types,value) {
+async function getSignTypedData(domain,types,value, privateKey) {
+    const walletEthres = new ethers.Wallet(privateKey, provider);
     const signature = await walletEthres._signTypedData(domain, types, value);
     // console.log(signature);
     return signature;

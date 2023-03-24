@@ -17,19 +17,22 @@ const BlurPoolClass = {
   wallet: {},
   async balanceOf(address) {
     try {
-      if (this.wallet.hasOwnProperty(address) && this.wallet[address].balance !== null) {
+      if (this.wallet.hasOwnProperty(address) && this.wallet[address].balance != null) {
         // console.log('class');
-        // console.log(this.wallet[address]);
+      // console.log(this.wallet);
+
         return this.wallet[address];
 
       } else {
         this.wallet[address] = { balance: null }
+        
       }
+
 
       const balance = await contract.methods.balanceOf(address).call();
       const balanceInEth = web3.utils.fromWei(balance, 'ether');
       this.wallet[address].balance = balanceInEth;
-      // console.log(`Balance of ${address} is ${balanceInEth} ETH`);
+      console.log(`Balance of ${address} is ${balanceInEth} ETH`);
       this.clearBalance(address);
       return this.wallet[address];
     } catch (e) {
@@ -47,7 +50,7 @@ const BlurPoolClass = {
     setTimeout(() => {
       this.wallet[address].balance = null;
 
-    }, 1000);
+    }, 30000);
   }
 }
 
