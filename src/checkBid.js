@@ -145,8 +145,8 @@ const checkMinPrice = (price, contract) => {
     // console.log(d);
     const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
     //    console.log(p);
-    return p > 60 ? true : false;
-    // мы говорим что нас интересуют сделки больше 60% от лучшего прайса, чтобы быть всегда в верху стакана
+    return p >= 100 ? true : false;
+    // мы говорим что нас интересуют сделки больше 100% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
 const check = async (accountAvailable) => {
@@ -178,21 +178,27 @@ const check = async (accountAvailable) => {
                     //     await clientRedis.del(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)
 
 
-                    //     }
+                    // }
 
                     if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
                         // console.log('total_eth ' + ele[price].total_eth);
                         // console.log('price ' + ele[price].price);
 
                         const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
-                        if (!bid && ele[price].bidderCount > 10) {
+                        // const bid = null;
+                        let bid_obj = null;
+                        if (bid) {
+                            bid_obj = JSON.parse(bid);
+                        }
+
+                        if (!bid && ele[price].bidderCount >= 5 || bid_obj?.count.count < 80) {
                             // проверем что участников торгов больше 10
                             console.log('already bid ' + price);
                             await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
                         } else if (bid) {
-                            let bid_obj = JSON.parse(bid);
+                            // let bid_obj = JSON.parse(bid);
                             // console.log(bid_obj);
-                            await bidRouter(key, account, ele[price], bid_obj);
+                            await bidRouter(key, account, ele[price], bid_obj.bid);
 
                         }
                     }

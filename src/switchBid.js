@@ -14,6 +14,8 @@ const { submitBid } = require('./submitBid');
 const { cancelBid } = require('./cancel');
 const taskLogin = new Map([]);
 
+
+const bidCount = {}
 const taskRouter = (account) => {
     // console.log(taskLogin);
     if (taskLogin.has(`loginTask_${account.walletAddress}`)) {
@@ -44,6 +46,7 @@ const switchBid = {
 
             }
         }
+
         return
 
 
@@ -95,12 +98,16 @@ const switchBid = {
                 contractAddress: contractAddress,
             }
             console.log(body);
-            if (body.quantity == 0) return null;
+            if (body.quantity == 0) {
+                this.loginAccount[account.walletAddress].count = 0;
+
+                return null
+            };
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
             console.log(setBid);
             if (!setBid) {
                 // проблемы с авторизацией удаляем объект авторизации, что бы выполнить авторизацию вновь
-                delete this.loginAccount[account.walletAddress]
+                delete this.loginAccount[account.walletAddress];
                 return null
             }
             const sign = await getSignV4(setBid.signatures[0].signData, account.walletAddress)
@@ -114,13 +121,18 @@ const switchBid = {
             const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
             console.log(sub);
             // process.exit(0)
-            this.loginAccount[account.walletAddress].count = 0;
             if (sub?.statusCode == 400) {
                 return
 
             }
             if (sub?.data?.success) {
-                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify(bid));
+                if (!bidCount.hasOwnProperty(`${account.walletAddress}_${contractAddress}_${bid.price}`)) {
+                    bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] = { count: 0 };
+                }
+                bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
+                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }));
+                this.loginAccount[account.walletAddress].count = 0;
+
 
             }
             return
@@ -143,15 +155,15 @@ const switchBid = {
             if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
                 return null
             }
-    
+
             await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid);
             await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
             this.loginAccount[account.walletAddress].delete = 0; // жестко говорим, что с 1 аккаунта 1 покупка, позже сделаем чрез редис
-    
-    
+
+
         }
         return
-      
+
 
     }
 }
@@ -187,6 +199,7 @@ const connectBlur = async (account) => {
             const loginData = await loginBlur(data, headers).then(res => {
                 console.log('loginBlur');
                 console.log(res.data);
+                return res.data
             }).catch(err => {
                 console.log(err);
                 return null

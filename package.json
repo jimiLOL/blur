@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "server": "nodemon index",
+    "server": "nodemon --config nodemon.json index",
     "start": "node --max-old-space-size=32192 --experimental-modules index.js"
   },
   "dependencies": {

@@ -1,0 +1,8 @@
+{
+    "watch": ["./"],
+    "ext": "ts, js",
+    "ignore": ["src/**/*.spec.ts", "proxy/**"],
+    "exec": "node --max-old-space-size=32192 --experimental-modules  index.js",
+    "delay": "1000",
+    "ignoreErrors": true
+  }
