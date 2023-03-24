@@ -6,7 +6,7 @@ const { BlurPoolClass } = require('./contracts/blurContract');
 const { newCookies } = require('./getSession');
 const Redis = require("ioredis");
 const clientRedis = new Redis(process.env.REDIS);
-const switchBid  = require('./switchBid');
+const switchBid = require('./switchBid');
 
 let balanceWalletBlurETh = {};
 
@@ -33,71 +33,97 @@ async function checkBid() {
 }
 // let magicValMin = 0;
 // let magicValPlus = 0;
-class Calculate  {
+class Calculate {
     constructor() {
-        this.magicValMin = 0;
-        this.magicValPlus = 0;
-      }
-      plus(val) {
-        this.magicValPlus+val;
-        return this.magicValPlus;
-      }
-      min(val) {
-        this.magicValMin+val;
-        return this.magicValMin;
+        // this.magicValMin = 0;
+        // this.magicValPlus = 0;
+        this.contract = {};
+    }
+    plus(val, contract) {
+        this.contract[contract].magicValPlus = this.contract[contract].magicValPlus + val;
+        return this.contract[contract].magicValPlus;
+    }
+    min(val, contract) {
+        this.contract[contract].magicValMin = this.contract[contract].magicValMin + val;
+        return this.contract[contract].magicValMin;
 
-      }
-      count() {
-        return this.magicValMin+this.magicValPlus
-      }
-      getMin() {
-        return this.magicValMin
-      }
-      clare() {
-        this.magicValMin = 0;
-        this.magicValPlus = 0;
+    }
+    count(contract) {
+        return this.contract[contract].magicValMin + this.contract[contract].magicValPlus
+    }
+    getMin(contract) {
+        return this.contract[contract].magicValMin
+    }
+    clare(contract) {
+        this.contract[contract].magicValMin = 0;
+        this.contract[contract].magicValPlus = 0;
 
-      }
-    
+    }
+    contractSet(contract) {
+        if (!this.contract.hasOwnProperty(contract)) {
+            this.contract[contract] = { contract: contract, magicValMin: 0, magicValPlus: 0 };
+
+        }
+
+    }
+
 }
 const calculate = new Calculate();
 
- 
+const copyObj = {};
+
+
 const bidRouter = async (contractAddress, account, ele, bid) => {
-    console.log('switchBid contractAddress ' + contractAddress);
-    console.log(bid); // то что в базе
-    console.log(ele); // event
-    console.log('calculate.count() ' + calculate.count());
+    calculate.contractSet(contractAddress)
+
+    // console.log('switchBid contractAddress ' + contractAddress);
+    // console.log(bid); // то что в базе
+    // console.log(ele); // event
+    // console.log('calculate.count() ' + calculate.count(contractAddress));
+
+
+    if (!copyObj[`${contractAddress}_${ele.price}`]) {
+        copyObj[`${contractAddress}_${ele.price}`] = { ...ele };
+
+
+    } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth) {
+        // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
+        copyObj[`${contractAddress}_${ele.price}`] = { ...ele };
+
+        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.5)) {
+            console.log('bid.total_eth*0.3 > ele.total_eth');
+
+            // console.log(bid.total_eth * 0.3, ele.total_eth);
+            // console.log('calculate.count() > Math.ceil((bid.total_eth/bid.price)*0.5)');
+            // console.log(calculate.count(contractAddress), Math.ceil((bid.total_eth / bid.price) * 0.5));
+            // снимаем ставку если наш bid упал до 30% от нашей ставки
+            await switchBid.deleteBid(contractAddress, account, bid);
+            calculate.clare(contractAddress);
+            BlurPoolClass.clearBalance(account.walletAddress); // очищаем баланс после сделки, что бы получить снова
+
+
+        } else if (bid.total_eth > ele.total_eth) {
+            const val = (bid.total_eth - ele.total_eth) / ele.price;
+            const result = calculate.min(val, contractAddress);
+
+            console.log('bid.total_eth > ele.total_eth + val ' + result);
+            // объем ставок уменьшился
+
+        } else if (bid.total_eth < ele.total_eth) {
+            const val = (ele.total_eth - bid.total_eth) / ele.price;
+
+            const result = calculate.plus(val, contractAddress)
+            console.log('bid.total_eth < ele.total_eth + ' + result);
+            // объем ставок увеличился
+
+        }
+
+
+    }
 
     // надо дублировать сущность
-  
-    if (bid.total_eth*0.3 > ele.total_eth || calculate.count() > Math.ceil((bid.total_eth/bid.price)*0.5)) {
-        console.log('bid.total_eth*0.3 > ele.total_eth');
 
-        console.log(bid.total_eth*0.3, ele.total_eth);
-        console.log('calculate.count() > Math.ceil((bid.total_eth/bid.price)*0.5)');
-        console.log(calculate.count(), Math.ceil((bid.total_eth/bid.price)*0.5));
-        // снимаем ставку если наш bid упал до 30% от нашей ставки
-        await switchBid.deleteBid(contractAddress, account, bid);
-        calculate.clare();
-        BlurPoolClass.clearBalance(account.walletAddress); // очищаем баланс после сделки, что бы получить снова
 
-        
-    } else if (bid.total_eth > ele.total_eth) {
-        const val = (bid.total_eth-ele.total_eth)/ele.price;
-        calculate.min(val);
-
-        console.log('bid.total_eth > ele.total_eth');
-        // объем ставок уменьшился
-        
-    } else if (bid.total_eth < ele.total_eth) {
-        const val = (ele.total_eth-bid.total_eth)/ele.price;
-
-        calculate.plus(val)
-        console.log('bid.total_eth < ele.total_eth');
-        // объем ставок увеличился
-        
-    } 
     // else if (bid.total_eth == ele.total_eth && calculate.getMin() > 100) {
     //     console.log('bid.total_eth === ele.total_eth');
 
@@ -117,16 +143,16 @@ const checkMinPrice = (price, contract) => {
     }
     const d = getBestPrice()[contract].bestPrice;
     // console.log(d);
-   const p = (Number(price)/Number(getBestPrice()[contract].bestPrice))*100;
-//    console.log(p);
-   return p > 60 ? true:false;
-   // мы говорим что нас интересуют сделки больше 60% от лучшего прайса, чтобы быть всегда в верху стакана
+    const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
+    //    console.log(p);
+    return p > 60 ? true : false;
+    // мы говорим что нас интересуют сделки больше 60% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
 const check = async (accountAvailable) => {
     accountAvailable.forEach(async account => {
         // console.log(account);
-      switchBid.login(account)
+        switchBid.login(account)
 
         await BlurPoolClass.balanceOf(account.walletAddress);
         // console.log(BlurPoolClass.walletSetBalance[account.walletAddress]);
@@ -141,7 +167,7 @@ const check = async (accountAvailable) => {
                     return Number(ele[a].price) - Number(ele[b].price);
                 });
                 // console.log('Price Array ' + keys);
-    
+
                 keys.forEach(async price => {
                     // console.log(ele[price]);
                     // console.log(ele[price].total_eth);
@@ -153,28 +179,28 @@ const check = async (accountAvailable) => {
 
 
                     //     }
-                    
-                    if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance*3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
+
+                    if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
                         // console.log('total_eth ' + ele[price].total_eth);
                         // console.log('price ' + ele[price].price);
-                      
+
                         const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
                         if (!bid && ele[price].bidderCount > 10) {
                             // проверем что участников торгов больше 10
                             console.log('already bid ' + price);
-                          await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
+                            await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
                         } else if (bid) {
                             let bid_obj = JSON.parse(bid);
                             // console.log(bid_obj);
-                          await bidRouter(key, account, ele[price], bid_obj);
+                            await bidRouter(key, account, ele[price], bid_obj);
 
                         }
                     }
-    
+
                 });
-    
-    
-    
+
+
+
             });
         }
 
@@ -184,7 +210,7 @@ const check = async (accountAvailable) => {
 
 
 
-   
+
 
 }
 

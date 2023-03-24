@@ -59,7 +59,7 @@ const switchBid = {
             const loginData = await connectBlur(account);
             if (loginData) {
 
-                this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0 };
+                this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
                 console.log(this.loginAccount[account.walletAddress]);
 
             }
@@ -69,7 +69,7 @@ const switchBid = {
             console.log('Enable autorization');
             const loginData = await connectBlur(account);
             if (loginData) {
-                this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0 };
+                this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
                 console.log(this.loginAccount[account.walletAddress]);
 
             }
@@ -95,6 +95,7 @@ const switchBid = {
                 contractAddress: contractAddress,
             }
             console.log(body);
+            if (body.quantity == 0) return null;
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
             console.log(setBid);
             if (!setBid) {
@@ -135,13 +136,22 @@ const switchBid = {
 
     },
     async deleteBid(contractAddress, account, bid) {
-        if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
-            return null
+        if (this.loginAccount[account.walletAddress] && !this.loginAccount[account.walletAddress].delete) {
+            this.loginAccount[account.walletAddress].delete = 1; // жестко говорим, что с 1 аккаунта 1 покупка, позже сделаем чрез редис
+
+
+            if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
+                return null
+            }
+    
+            await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid);
+            await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+            this.loginAccount[account.walletAddress].delete = 0; // жестко говорим, что с 1 аккаунта 1 покупка, позже сделаем чрез редис
+    
+    
         }
-
-        await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid);
-        await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
-
+        return
+      
 
     }
 }
