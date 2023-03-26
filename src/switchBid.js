@@ -215,7 +215,7 @@ const connectBlur = async (account) => {
         // console.log(data, headers);
 
         return await getSign(data.message, account.walletAddress).then(async (sigObj) => {
-            // console.log(sigObj);
+            console.log(sigObj);
             data.signature = sigObj.signature;
             // console.log(data);
             // const hmac = crypto.createHmac('sha256', process.env.PRIVATE_KEY);
@@ -226,13 +226,14 @@ const connectBlur = async (account) => {
             //     walletAddress: account.address,
             //     expiresOn: new Date().toISOString(),
             //   };
-            const date = new Date();
-            date.setMonth(date.getMonth() + 1);
-            data.expiresOn = date.toISOString();
+            // const date = new Date();
+            // date.setMonth(date.getDay() + 1);
+            // data.expiresOn = date.toISOString();
+            // console.log(data);
             const loginData = await loginBlur(data, headers).then(res => {
                 console.log('loginBlur');
-                console.log(res.data);
-                return res.data
+                console.log(res);
+                return res
             }).catch(err => {
                 console.log(err);
                 return null
