@@ -204,7 +204,7 @@ const connectBlur = async (account) => {
     if (login && login?.data?.success) {
         console.log('Login online walletAddress '  + account.walletAddress);
         await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
-        return account
+        // return account
     }
     return await getBlurSign(account).then(async ({ data, headers }) => {
         if (!data || !headers) {
