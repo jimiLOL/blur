@@ -132,7 +132,7 @@ const switchBid = {
                     bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] = { count: 0 };
                 }
                 bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
-                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }));
+                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60*30);
                 setTimeout(() => {
                 this.loginAccount[account.walletAddress].count = 0;
                     
