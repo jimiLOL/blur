@@ -226,9 +226,12 @@ const connectBlur = async (account) => {
             //     walletAddress: account.address,
             //     expiresOn: new Date().toISOString(),
             //   };
+            const date = new Date();
+            date.setMonth(date.getMonth() + 1);
+            data.expiresOn = date.toISOString();
             const loginData = await loginBlur(data, headers).then(res => {
                 console.log('loginBlur');
-                // console.log(res.data);
+                console.log(res.data);
                 return res.data
             }).catch(err => {
                 console.log(err);
