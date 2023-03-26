@@ -87,7 +87,7 @@ const switchBid = {
             console.log(bid);
             const date = new Date();
             // date.setDate(date.getFullYear() + 1); // 1 yaer
-            date.setMinutes(date.getMinutes() + 11);
+            date.setMinutes(date.getMinutes() + 16);
             // date.setDate(date.getDate() + 1);
             const isoDate = date.toISOString();
             const body = {
