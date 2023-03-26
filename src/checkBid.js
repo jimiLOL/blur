@@ -163,7 +163,7 @@ const checkMinPrice = (price, contract) => {
     }
     // const d = getBestPrice()[contract].bestPrice;
     const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
-    return p < 100 ? true : false;
+    return p < 100 && p > 98 ? true : false;
     // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
