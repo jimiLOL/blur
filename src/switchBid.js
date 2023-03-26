@@ -38,11 +38,12 @@ const switchBid = {
     async login(account) {
         const currentTime = new Date().getTime();
 
-        if (!this.loginAccount.hasOwnProperty(account.walletAddress) && taskRouter(account)) {
+        if (!this.loginAccount.hasOwnProperty(account.walletAddress) && taskRouter(account) || this.loginAccount[account.walletAddress]?.date < (currentTime - 1000 * 60 * 2) && taskRouter(account)) {
+            console.log('Re login init');
             const loginData = await connectBlur(account);
             if (loginData) {
                 this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0 };
-                console.log(this.loginAccount[account.walletAddress]);
+                // console.log(this.loginAccount[account.walletAddress]);
 
             }
         }
@@ -131,7 +132,10 @@ const switchBid = {
                 }
                 bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
                 await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }));
+                setTimeout(() => {
                 this.loginAccount[account.walletAddress].count = 0;
+                    
+                }, 500);
 
 
             }
@@ -149,16 +153,40 @@ const switchBid = {
     },
     async deleteBid(contractAddress, account, bid) {
         if (this.loginAccount[account.walletAddress] && !this.loginAccount[account.walletAddress].delete) {
-            this.loginAccount[account.walletAddress].delete = 1; // жестко говорим, что с 1 аккаунта 1 покупка, позже сделаем чрез редис
+            this.loginAccount[account.walletAddress].delete = 1 
 
 
             if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
                 return null
             }
 
-            await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid);
-            await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
-            this.loginAccount[account.walletAddress].delete = 0; // жестко говорим, что с 1 аккаунта 1 покупка, позже сделаем чрез редис
+            return await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid).then(async res => {
+                if (res && res?.message != 'No bids found') {
+                    this.loginAccount[account.walletAddress].delete = 0;  
+
+                    return await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+    
+
+                } else if (res?.message == 'No bids found') {
+                    this.loginAccount[account.walletAddress].delete = 0;  
+                    await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+
+                    return res
+
+                } else {
+                    return null
+                }
+          
+
+            }).catch(async e => {
+                const loginData = await connectBlur(account);
+                if (loginData) {
+                    this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
+                    console.log(this.loginAccount[account.walletAddress]);
+    
+                }
+                return null
+            });
 
 
         }
@@ -170,9 +198,10 @@ const switchBid = {
 
 const connectBlur = async (account) => {
     const login = await checkLogin(account);
-    console.log(login);
+    // console.log(login);
     // process.exit(0)
     if (login && login?.data?.success) {
+        console.log('Login online walletAddress '  + account.walletAddress);
         await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
         return account
     }
@@ -182,12 +211,12 @@ const connectBlur = async (account) => {
 
             return null
         }
-        console.log(data, headers);
+        // console.log(data, headers);
 
         return await getSign(data.message, account.walletAddress).then(async (sigObj) => {
-            console.log(sigObj);
+            // console.log(sigObj);
             data.signature = sigObj.signature;
-            console.log(data);
+            // console.log(data);
             // const hmac = crypto.createHmac('sha256', process.env.PRIVATE_KEY);
             // hmac.update(data.message);
             // const digest = hmac.digest('hex');
@@ -198,7 +227,7 @@ const connectBlur = async (account) => {
             //   };
             const loginData = await loginBlur(data, headers).then(res => {
                 console.log('loginBlur');
-                console.log(res.data);
+                // console.log(res.data);
                 return res.data
             }).catch(err => {
                 console.log(err);

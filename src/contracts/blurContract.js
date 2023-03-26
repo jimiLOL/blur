@@ -32,7 +32,7 @@ const BlurPoolClass = {
       const balance = await contract.methods.balanceOf(address).call();
       const balanceInEth = web3.utils.fromWei(balance, 'ether');
       this.wallet[address].balance = balanceInEth;
-      console.log(`Balance of ${address} is ${balanceInEth} ETH`);
+      // console.log(`Balance of ${address} is ${balanceInEth} BETH`);
       this.clearBalance(address);
       return this.wallet[address];
     } catch (e) {

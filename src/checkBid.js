@@ -88,23 +88,41 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
 
     } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth) {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
-        copyObj[`${contractAddress}_${ele.price}`] = { ...ele };
 
-        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.5)) {
+        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.2) || bid.time < (new Date().getTime()-1000*60*10)) {
             console.log('bid.total_eth*0.3 > ele.total_eth');
 
             // console.log(bid.total_eth * 0.3, ele.total_eth);
             // console.log('calculate.count() > Math.ceil((bid.total_eth/bid.price)*0.5)');
             // console.log(calculate.count(contractAddress), Math.ceil((bid.total_eth / bid.price) * 0.5));
             // снимаем ставку если наш bid упал до 30% от нашей ставки
-            await switchBid.deleteBid(contractAddress, account, bid);
-            calculate.clare(contractAddress);
+            await switchBid.deleteBid(contractAddress, account, bid).then(res=> {
+                if (res && res?.statusCode != 400) {
+                    console.log('success cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
+                    console.log(res);
+
+                    calculate.clare(contractAddress);
+
+                } else if (res?.statusCode == 400 && res?.message == 'No bids found') {
+                    calculate.clare(contractAddress);
+
+                console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
+                console.log(res);
+
+
+                }
+             
+            }).catch(e=> {
+                console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
+                console.log(e?.data);
+            });
             BlurPoolClass.clearBalance(account.walletAddress); // очищаем баланс после сделки, что бы получить снова
+
 
 
         } else if (bid.total_eth > ele.total_eth) {
             const val = (bid.total_eth - ele.total_eth) / ele.price;
-            const result = calculate.min(val, contractAddress);
+            const result = calculate.min(Math.ceil(val), contractAddress);
 
             console.log('bid.total_eth > ele.total_eth + val ' + result);
             // объем ставок уменьшился
@@ -112,11 +130,13 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
         } else if (bid.total_eth < ele.total_eth) {
             const val = (ele.total_eth - bid.total_eth) / ele.price;
 
-            const result = calculate.plus(val, contractAddress)
+            const result = calculate.plus(Math.ceil(val), contractAddress)
             console.log('bid.total_eth < ele.total_eth + ' + result);
             // объем ставок увеличился
 
         }
+        copyObj[`${contractAddress}_${ele.price}`] = { ...ele };
+
 
 
     }
@@ -141,15 +161,14 @@ const checkMinPrice = (price, contract) => {
         return false
 
     }
-    const d = getBestPrice()[contract].bestPrice;
-    // console.log(d);
+    // const d = getBestPrice()[contract].bestPrice;
     const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
-    //    console.log(p);
-    return p >= 100 ? true : false;
-    // мы говорим что нас интересуют сделки больше 100% от лучшего прайса, чтобы быть всегда в верху стакана
+    return p >= 98 ? true : false;
+    // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
 const check = async (accountAvailable) => {
+  
     accountAvailable.forEach(async account => {
         // console.log(account);
         switchBid.login(account)
@@ -180,7 +199,7 @@ const check = async (accountAvailable) => {
 
                     // }
 
-                    if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
+                   
                         // console.log('total_eth ' + ele[price].total_eth);
                         // console.log('price ' + ele[price].price);
 
@@ -189,19 +208,25 @@ const check = async (accountAvailable) => {
                         let bid_obj = null;
                         if (bid) {
                             bid_obj = JSON.parse(bid);
-                        }
+                            // console.log(bid_obj);
 
-                        if (!bid && ele[price].bidderCount >= 5 || bid_obj?.count.count < 80) {
+                        }
+                        ele[price].time = new Date().getTime();
+
+                        if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count.count == 0) {
+                            if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
+                                // console.log('already bid ' + price);
+                                await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
+
+                            }
                             // проверем что участников торгов больше 10
-                            console.log('already bid ' + price);
-                            await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
+                          
                         } else if (bid) {
                             // let bid_obj = JSON.parse(bid);
                             // console.log(bid_obj);
                             await bidRouter(key, account, ele[price], bid_obj.bid);
 
                         }
-                    }
 
                 });
 

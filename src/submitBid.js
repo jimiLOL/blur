@@ -43,6 +43,7 @@ async function submitBid(account, body) {
 
     return await axios.post('https://core-api.prod.blur.io/v1/collection-bids/submit', body, { headers: headers }).then(res => {
         // console.log(res);
+        console.log('Submit bid ' + new Date());
         return { data: res.data, headers: headers };
     }).catch(err => {
         console.log(err.message);

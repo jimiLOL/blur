@@ -32,7 +32,8 @@ const options = {
 };
 
 function subscribeList(socket) {
-    collectionsList.forEach(element => {
+    const cl = Array.from(new Set(collectionsList));
+    cl.forEach(element => {
         subscribe(socket, element, 4216, 'denormalizer.collectionBidPriceUpdates')
         subscribe(socket, element, 4212, 'denormalizer.collectionBidStats')
         // subscribe(socket, element, 4219, 'stats.floorUpdate')
@@ -136,7 +137,7 @@ const bestPrice = {};
 const handleFortyTwo = (event) => {
 
     if (event.event.includes('denormalizer.collectionBidStats')) {
-        console.log('denormalizer.collectionBidStats');
+        // console.log('denormalizer.collectionBidStats');
         // console.log(event.payload);
         if (!bestPrice.hasOwnProperty(event.payload.bestPrice)) {
             bestPrice[event.payload.contractAddress] = {};
