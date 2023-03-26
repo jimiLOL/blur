@@ -38,7 +38,7 @@ const switchBid = {
     async login(account) {
         const currentTime = new Date().getTime();
 
-        if (!this.loginAccount.hasOwnProperty(account.walletAddress) && taskRouter(account) || this.loginAccount[account.walletAddress]?.date < (currentTime - 1000 * 60 * 2) && taskRouter(account)) {
+        if (!this.loginAccount.hasOwnProperty(account.walletAddress) && taskRouter(account) || this.loginAccount[account.walletAddress]?.date < (currentTime - 1000 * 30) && taskRouter(account)) {
             console.log('Re login init');
             const loginData = await connectBlur(account);
             if (loginData) {
