@@ -4,15 +4,19 @@ const CronJob = require("cron").CronJob;
 const CronTime = require("cron").CronTime;
 
 
-const dataCron = new Date();
-dataCron.setSeconds(dataCron.getSeconds() + 60*60);
+// const dataCron = new Date();
+// dataCron.setSeconds(dataCron.getSeconds() + 60);
 
-const reloadServer = () => {
- 
+// const reloadServer = () => {
 
-    process.exit(1)
-}
-const job = new CronJob(dataCron, reloadServer());
+
+//     // process.exit(1)
+//     console.log('Start cron');
+//     return
+// }
+// const job = new CronJob(dataCron, reloadServer());
+
+// // job.start()
 
 
 // function startCron(cron, time) {
@@ -20,25 +24,26 @@ const job = new CronJob(dataCron, reloadServer());
 //     d.setSeconds(d.getSeconds() + time);
 //     cron.setTime(new CronTime(d));
 //     cron.start();
-//   }
+// }
+
+// startCron(job, 7200)
 
 
-
-const {start} = require('./src/socket');
+const { start } = require('./src/socket');
 
 (async () => {
 
-  await start(); // начинаем получать данные с биржи
+    await start(); // начинаем получать данные с биржи
 
 })();
 
 
 
 
- 
 
 
-const {getBalance} = require('./src/web3controller');
+
+const { getBalance } = require('./src/web3controller');
 
 const body = {
     address: "0xb8F202dC3242A6b17d7Be5e2956aC2680EAf223c",

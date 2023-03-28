@@ -37,6 +37,7 @@ const BlurPoolClass = {
       return this.wallet[address];
     } catch (e) {
       console.log(e);
+      process.exit(1)
       return { balance: null };
     }
 
