@@ -89,7 +89,7 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
     } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth) {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
 
-        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.15) || bid.time < (new Date().getTime()-1000*60*10)) {
+        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime()-1000*60*10)) {
             console.log('bid.total_eth*0.3 > ele.total_eth');
 
             // console.log(bid.total_eth * 0.3, ele.total_eth);
