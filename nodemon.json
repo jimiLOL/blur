@@ -2,7 +2,7 @@
     "watch": ["./"],
     "ext": "ts, js",
     "ignore": ["src/**/*.spec.ts", "proxy/**"],
-    "exec": "node --max-old-space-size=32192 --experimental-modules  index.js",
+    "exec": "node --max-old-space-size=32192 --experimental-modules  server_blur.js",
     "delay": "1000",
     "ignoreErrors": true
   }

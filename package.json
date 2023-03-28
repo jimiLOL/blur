@@ -1,13 +1,13 @@
 {
   "name": "blur",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server_blur.js",
   "author": "Abraham",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "server": "nodemon --config nodemon.json index",
-    "start": "node --max-old-space-size=32192 --experimental-modules index.js"
+    "server": "nodemon --config nodemon.json server_blur",
+    "start": "node --max-old-space-size=32192 --experimental-modules server_blur.js"
   },
   "dependencies": {
     "@alch/alchemy-web3": "^1.4.7",
