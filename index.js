@@ -1,5 +1,29 @@
 const { Alchemy, Network, NftSaleMarketplace } = require("alchemy-sdk");
 
+const CronJob = require("cron").CronJob;
+const CronTime = require("cron").CronTime;
+
+
+const dataCron = new Date();
+dataCron.setSeconds(dataCron.getSeconds() + 10);
+
+
+const reloadServer = () => {
+    process.exit(1)
+}
+const job = new CronJob(dataCron, reloadServer());
+
+
+function startCron(cron, time) {
+    let d = new Date();
+    d.setSeconds(d.getSeconds() + time);
+    cron.setTime(new CronTime(d));
+    cron.start();
+  }
+
+  startCron(job, 7200)
+
+
 const {start} = require('./src/socket');
 
 (async () => {
@@ -7,6 +31,9 @@ const {start} = require('./src/socket');
   await start(); // начинаем получать данные с биржи
 
 })();
+
+
+
 
  
 
