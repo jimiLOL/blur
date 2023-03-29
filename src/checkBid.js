@@ -9,9 +9,39 @@ const clientRedis = new Redis(process.env.REDIS);
 const switchBid = require('./switchBid');
 
 let balanceWalletBlurETh = {};
+ 
 
+class checkPercent {
+    constructor() {
+        this.min = 98;
+        this.max = 100;
+        this.date = new Date().getTime();
+    }
+    async getPercent() {
+        if (this.date + 1000 * 60 * 5 < new Date().getTime()) {
+            this.date = new Date().getTime();
+            const strPercentBlur = await clientRedis.get('blur_percent');
+            console.log(strPercentBlur);
+            const ArrayBlurPercent = strPercentBlur.split(',');
+            this.min = ArrayBlurPercent[0];
+            this.max = ArrayBlurPercent[1];
+            return { min: this.min, max: this.max }
+        } else {
+            return { min: this.min, max: this.max }
+        }
+        // const date = new Date().getTime();
+        // const strPercentBlur = await clientRedis.get('blur_percent');
+        // console.log(strPercentBlur);
+        // const ArrayBlurPercent = strPercentBlur.split(',');
+        // this.min = ArrayBlurPercent[0];
+        // this.max = ArrayBlurPercent[1];
+        // return 
+    }
+}
+const getP = new checkPercent();
 
 async function checkBid() {
+
 
     while (true) {
         const accountAvailable = await newCookies();
@@ -89,14 +119,14 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
     } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth) {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
 
-        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime()-1000*60*10)) {
+        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10)) {
             console.log('bid.total_eth*0.3 > ele.total_eth');
 
             // console.log(bid.total_eth * 0.3, ele.total_eth);
             // console.log('calculate.count() > Math.ceil((bid.total_eth/bid.price)*0.5)');
             // console.log(calculate.count(contractAddress), Math.ceil((bid.total_eth / bid.price) * 0.5));
             // снимаем ставку если наш bid упал до 30% от нашей ставки
-            await switchBid.deleteBid(contractAddress, account, bid).then(res=> {
+            await switchBid.deleteBid(contractAddress, account, bid).then(res => {
                 if (res && res?.statusCode != 400) {
                     console.log('success cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
                     console.log(res);
@@ -106,13 +136,13 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
                 } else if (res?.statusCode == 400 && res?.message == 'No bids found') {
                     calculate.clare(contractAddress);
 
-                console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
-                console.log(res);
+                    console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
+                    console.log(res);
 
 
                 }
-             
-            }).catch(e=> {
+
+            }).catch(e => {
                 console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
                 console.log(e?.data);
             });
@@ -156,19 +186,20 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
 
 }
 
-const checkMinPrice = (price, contract) => {
+const checkMinPrice = async (price, contract) => {
+    const { min, max } = await getP.getPercent();
     if (!getBestPrice().hasOwnProperty(contract)) {
         return false
 
     }
     // const d = getBestPrice()[contract].bestPrice;
     const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
-    return p < 100 && p > 98 ? true : false;
+    return p < max && p > min ? true : false;
     // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
 const check = async (accountAvailable) => {
-  
+
     accountAvailable.forEach(async account => {
         // console.log(account);
         switchBid.login(account)
@@ -199,34 +230,34 @@ const check = async (accountAvailable) => {
 
                     // }
 
-                   
-                        // console.log('total_eth ' + ele[price].total_eth);
-                        // console.log('price ' + ele[price].price);
 
-                        const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
-                        // const bid = null;
-                        let bid_obj = null;
-                        if (bid) {
-                            bid_obj = JSON.parse(bid);
-                            // console.log(bid_obj);
+                    // console.log('total_eth ' + ele[price].total_eth);
+                    // console.log('price ' + ele[price].price);
 
-                        }
-                        ele[price].time = new Date().getTime();
+                    const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
+                    // const bid = null;
+                    let bid_obj = null;
+                    if (bid) {
+                        bid_obj = JSON.parse(bid);
+                        // console.log(bid_obj);
 
-                        if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count.count == 0) {
-                            if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
-                                // console.log('already bid ' + price);
-                                await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
+                    }
+                    ele[price].time = new Date().getTime();
 
-                            }
-                            // проверем что участников торгов больше 10
-                          
-                        } else if (bid) {
-                            // let bid_obj = JSON.parse(bid);
-                            // console.log(bid_obj);
-                            await bidRouter(key, account, ele[price], bid_obj.bid);
+                    if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count.count == 0) {
+                        if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
+                            // console.log('already bid ' + price);
+                            await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
 
                         }
+                        // проверем что участников торгов больше 10
+
+                    } else if (bid) {
+                        // let bid_obj = JSON.parse(bid);
+                        // console.log(bid_obj);
+                        await bidRouter(key, account, ele[price], bid_obj.bid);
+
+                    }
 
                 });
 

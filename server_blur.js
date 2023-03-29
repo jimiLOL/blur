@@ -1,7 +1,7 @@
 const { Alchemy, Network, NftSaleMarketplace } = require("alchemy-sdk");
 
-const CronJob = require("cron").CronJob;
-const CronTime = require("cron").CronTime;
+// const CronJob = require("cron").CronJob;
+// const CronTime = require("cron").CronTime;
 
 
 // const dataCron = new Date();
