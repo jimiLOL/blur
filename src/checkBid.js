@@ -29,13 +29,7 @@ class checkPercent {
         } else {
             return { min: this.min, max: this.max }
         }
-        // const date = new Date().getTime();
-        // const strPercentBlur = await clientRedis.get('blur_percent');
-        // console.log(strPercentBlur);
-        // const ArrayBlurPercent = strPercentBlur.split(',');
-        // this.min = ArrayBlurPercent[0];
-        // this.max = ArrayBlurPercent[1];
-        // return 
+    
     }
 }
 const getP = new checkPercent();
