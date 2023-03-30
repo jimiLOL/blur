@@ -115,7 +115,7 @@ const getBlurCookie = (cookies) => {
 
     });
     // console.log(cook_str);
-    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent, authToken: authToken};
+    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent, authToken: authToken, proxy: cookies.proxy};
 }
 
 module.exports = ActiveAccount;
