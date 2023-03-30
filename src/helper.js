@@ -21,7 +21,7 @@ function proxyInit(proxy) {
     try {
         let proxyArray = proxy.split(":", 4);
 
-        return { host: proxyArray[0], port: proxyArray[1] }
+        return { host: proxyArray[0], port: proxyArray[1], proxyAuth: proxyArray[2] + ':' + proxyArray[3] }
 
     } catch (e) {
         console.log(e);

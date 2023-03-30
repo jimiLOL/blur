@@ -1,10 +1,11 @@
 
 const axios = require('axios');
 
-
+const helper = require('./helper');
 const walSignature = null;
 
 async function checkLogin(account) {
+
 
     if (account.cook_str.length == 0) {
         console.log('!_No cookies_!');
@@ -16,6 +17,18 @@ async function checkLogin(account) {
         return null
 
     }
+    const { host: proxyHost, port: portHost, proxyAuth: proxyAuth } = helper.proxyInit(account.proxy);
+
+    let proxyOptions = {
+        host: proxyHost,
+        port: portHost,
+        proxyAuth: proxyAuth,
+        headers: {
+            'User-Agent': account.UserAgent
+        },
+    };
+ 
+ 
 
     // let cook_str = '';
 
@@ -47,7 +60,7 @@ async function checkLogin(account) {
     const body = { authToken: account.authToken };
 
 
-    return await axios.post('https://core-api.prod.blur.io/auth/cookie', body, { headers: headers }).then(res => {
+    return await axios.post('https://core-api.prod.blur.io/auth/cookie', body, { headers: headers, httpsAgent: helper.initAgent(proxyOptions) }).then(res => {
         // console.log(res);
         return { data: res.data, headers: headers };
     }).catch(err => {

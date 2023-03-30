@@ -1,5 +1,6 @@
 
 const axios = require('axios');
+const helper = require('./helper');
 
 
 const walSignature = null;
@@ -39,10 +40,22 @@ async function getBlurSign(account) {
     console.log(headers);
     const body = { walletAddress: account.walletAddress };
 
+    const { host: proxyHost, port: portHost, proxyAuth: proxyAuth } = helper.proxyInit(account.proxy);
 
-    return await axios.post('https://core-api.prod.blur.io/auth/challenge', body, { headers: headers }).then(res => {
+    let proxyOptions = {
+        host: proxyHost,
+        port: portHost,
+        proxyAuth: proxyAuth,
+        headers: {
+            'User-Agent': account.UserAgent
+        },
+    };
+    const agent = helper.initAgent(proxyOptions);
+
+
+    return await axios.post('https://core-api.prod.blur.io/auth/challenge', body, { headers: headers, httpsAgent: agent }).then(res => {
         // console.log(res);
-        return { data: res.data, headers: headers };
+        return { data: res.data, headers: headers, agent: agent };
     }).catch(err => {
         console.log(err.message);
         // console.log(err);

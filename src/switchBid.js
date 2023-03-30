@@ -206,7 +206,7 @@ const connectBlur = async (account) => {
         await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
         return account
     }
-    return await getBlurSign(account).then(async ({ data, headers }) => {
+    return await getBlurSign(account).then(async ({ data, headers, agent }) => {
         if (!data || !headers) {
             await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
 
@@ -230,7 +230,7 @@ const connectBlur = async (account) => {
             // date.setMonth(date.getDay() + 1);
             // data.expiresOn = date.toISOString();
             // console.log(data);
-            const loginData = await loginBlur(data, headers).then(res => {
+            const loginData = await loginBlur(data, headers, agent).then(res => {
                 console.log('loginBlur');
                 console.log(res);
                 return res
