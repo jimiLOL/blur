@@ -244,7 +244,7 @@ const connectBlur = async (account) => {
             if (loginData) {
                 await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
 
-                account.authToken = loginData.authToken
+                account.authToken = loginData.accessToken
                 return account
             } else {
                 await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
