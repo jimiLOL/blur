@@ -39,24 +39,23 @@ async function checkLogin(account) {
     // });
     // console.log('cookies ' + cook_str);
     const headers = {
-        'Host': 'core-api.prod.blur.io',
-        'User-Agent': account.UserAgent,
         'Accept': '*/*',
-        'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
-        'sec-ch-ua-platform':'"Windows"',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'User-Agent': account.UserAgent,
+        'Origin': 'https://blur.io',
+        'sec-ch-ua': account.sec_ch_ua,
+        'sec-ch-ua-platform':account.sec_ch_ua_platform,
+        'Accept-Language': account.AcceptLanguage,
         'Accept-Encoding': 'gzip, deflate, br',
         'Referer': 'https://blur.io/',
         'Content-Type': 'application/json',
-        'Origin': 'https://blur.io',
         'Connection': 'keep-alive',
-        'Cookie': account.cook_str,
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-site'
+        'Sec-Fetch-Site': 'same-site',
+        'Cookie': account.cook_str,
 
     };
-    // console.log(headers);
+    console.log(headers);
     const body = { authToken: account.authToken };
 
 
@@ -64,8 +63,8 @@ async function checkLogin(account) {
         // console.log(res);
         return { data: res.data, headers: headers };
     }).catch(err => {
-        console.log(err.message);
-        console.log(err);
+        console.log('При проверке cookie произошла ошибка ' + err.message);
+        // console.log(err);
         return null
     })
 

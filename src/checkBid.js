@@ -238,7 +238,7 @@ const check = async (accountAvailable) => {
                     }
                     ele[price].time = new Date().getTime();
 
-                    if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count.count == 0) {
+                    if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count?.count == 0 || !bid_obj?.count?.count) {
                         if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
                             // console.log('already bid ' + price);
                             await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);

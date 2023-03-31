@@ -107,7 +107,7 @@ const switchBid = {
             };
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
             console.log(setBid);
-            if (!setBid) {
+            if (!setBid || setBid?.statusCode == 400) {
                 // проблемы с авторизацией удаляем объект авторизации, что бы выполнить авторизацию вновь
                 delete this.loginAccount[account.walletAddress];
                 return null
@@ -198,6 +198,7 @@ const switchBid = {
 }
 
 const connectBlur = async (account) => {
+    // console.log(account);
     const login = await checkLogin(account);
     // console.log(login);
     // process.exit(0)

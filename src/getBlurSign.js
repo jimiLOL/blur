@@ -37,7 +37,7 @@ async function getBlurSign(account) {
         'Sec-Fetch-Site': 'same-site'
 
     };
-    console.log(headers);
+    // console.log(headers);
     const body = { walletAddress: account.walletAddress };
 
     const { host: proxyHost, port: portHost, proxyAuth: proxyAuth } = helper.proxyInit(account.proxy);
@@ -53,7 +53,7 @@ async function getBlurSign(account) {
     const agent = helper.initAgent(proxyOptions);
 
 
-    return await axios.post('https://core-api.prod.blur.io/auth/challenge', body, { headers: headers, httpsAgent: agent }).then(res => {
+    return await axios.post('https://core-api.prod.blur.io/auth/challenge', body, { headers: headers }).then(res => {
         // console.log(res);
         return { data: res.data, headers: headers, agent: agent };
     }).catch(err => {
