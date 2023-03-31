@@ -162,6 +162,7 @@ const switchBid = {
             }
 
             return await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid).then(async res => {
+                console.log('function cancelBid ');
                 console.log(res);
                 if (res && res?.message != 'No bids found') {
                     this.loginAccount[account.walletAddress].delete = 0;  
@@ -243,6 +244,7 @@ const connectBlur = async (account) => {
             console.log(loginData);
             if (loginData) {
                 await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
+                updateCookie(account);
 
                 account.authToken = loginData.accessToken
                 return account
@@ -262,5 +264,8 @@ const connectBlur = async (account) => {
     });
 
 }
-
+function updateCookie(account) {
+    let cookiesArray = JSON.parse(account.cookie);
+    console.log(cookiesArray);
+}
 module.exports = switchBid;
