@@ -162,6 +162,7 @@ const switchBid = {
             }
 
             return await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid).then(async res => {
+                console.log(res);
                 if (res && res?.message != 'No bids found') {
                     this.loginAccount[account.walletAddress].delete = 0;  
 
