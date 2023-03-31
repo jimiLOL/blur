@@ -244,7 +244,8 @@ const connectBlur = async (account) => {
             console.log(loginData);
             if (loginData) {
                 await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
-                updateCookie(account);
+                account = updateCookie(account, loginData.accessToken);
+
 
                 account.authToken = loginData.accessToken
                 return account
@@ -264,8 +265,30 @@ const connectBlur = async (account) => {
     });
 
 }
-function updateCookie(account) {
-    let cookiesArray = JSON.parse(account.cookie);
-    console.log(cookiesArray);
+function updateCookie(account, accessToken) {
+    console.log(account);
+    let cookiesArray = account.cook_str.split(';');
+    let findEle = 0;
+    for (let index = 0; index < cookiesArray.length; index++) {
+        const element = cookiesArray[index];
+        if (element.includes('authToken')) {
+            findEle++;
+            const newToken = `authToken=${accessToken}`
+            cookiesArray.splice(index, 1, newToken)
+            
+
+
+        }
+        
+    }
+    if (findEle == 0) {
+        cookiesArray.push(`authToken=${accessToken}`)
+
+    }
+    const result = arr.join(";");
+    account.cook_str = result;
+    return account
+
+ 
 }
 module.exports = switchBid;
