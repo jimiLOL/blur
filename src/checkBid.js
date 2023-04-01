@@ -188,7 +188,7 @@ const checkMinPrice = async (price, contract) => {
     }
     // const d = getBestPrice()[contract].bestPrice;
     const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
-    return p < max && p > min ? true : false;
+    return p < 99.7 && p > 99.5 ? true : false;
     // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
@@ -238,7 +238,7 @@ const check = async (accountAvailable) => {
                     }
                     ele[price].time = new Date().getTime();
 
-                    if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count?.count == 0 || !bid_obj?.count?.count) {
+                    if (!bid && ele[price].bidderCount >= 8 || bid_obj?.count?.count == 0) {
                         if (ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key)) {
                             // console.log('already bid ' + price);
                             await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);

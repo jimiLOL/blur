@@ -90,12 +90,13 @@ const switchBid = {
             date.setMinutes(date.getMinutes() + 16);
             // date.setDate(date.getDate() + 1);
             const isoDate = date.toISOString();
+            const countBid = Math.floor(myBalance*0.9 / bid.price);
             const body = {
                 price: {
                     unit: 'BETH',
                     amount: bid.price // 
                 },
-                quantity: Math.floor(myBalance / bid.price),
+                quantity: countBid == 0? 1:countBid,
                 expirationTime: isoDate,
                 contractAddress: contractAddress,
             }
@@ -119,9 +120,9 @@ const switchBid = {
                 signature: sign,
                 marketplaceData: setBid.signatures[0].marketplaceData
             }
-            console.log(bodySub);
+            // console.log(bodySub);
             const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
-            console.log(sub);
+            // console.log(sub);
             // process.exit(0)
             if (sub?.statusCode == 400) {
                 return
@@ -132,7 +133,7 @@ const switchBid = {
                     bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] = { count: 0 };
                 }
                 bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
-                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60*30);
+                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60*16);
                 setTimeout(() => {
                 this.loginAccount[account.walletAddress].count = 0;
                     
@@ -218,7 +219,7 @@ const connectBlur = async (account) => {
         // console.log(data, headers);
 
         return await getSign(data.message, account.walletAddress).then(async (sigObj) => {
-            console.log(sigObj);
+            // console.log(sigObj);
             data.signature = sigObj.signature;
             // console.log(data);
             // const hmac = crypto.createHmac('sha256', process.env.PRIVATE_KEY);
