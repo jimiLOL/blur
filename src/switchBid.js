@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const Redis = require("ioredis");
 const clientRedis = new Redis(process.env.REDIS);
+const axios = require('axios');
 
 const { loginBlur } = require('./loginBlur');
 
@@ -90,13 +91,13 @@ const switchBid = {
             date.setMinutes(date.getMinutes() + 16);
             // date.setDate(date.getDate() + 1);
             const isoDate = date.toISOString();
-            const countBid = Math.floor(myBalance*0.9 / bid.price);
+            const countBid = Math.floor(myBalance * 0.9 / bid.price);
             const body = {
                 price: {
                     unit: 'BETH',
                     amount: bid.price // 
                 },
-                quantity: countBid == 0? 1:countBid,
+                quantity: countBid == 0 ? 1 : countBid,
                 expirationTime: isoDate,
                 contractAddress: contractAddress,
             }
@@ -133,10 +134,10 @@ const switchBid = {
                     bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] = { count: 0 };
                 }
                 bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
-                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60*16);
+                await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60 * 16);
                 setTimeout(() => {
-                this.loginAccount[account.walletAddress].count = 0;
-                    
+                    this.loginAccount[account.walletAddress].count = 0;
+
                 }, 500);
 
 
@@ -155,7 +156,7 @@ const switchBid = {
     },
     async deleteBid(contractAddress, account, bid) {
         if (this.loginAccount[account.walletAddress] && !this.loginAccount[account.walletAddress].delete) {
-            this.loginAccount[account.walletAddress].delete = 1 
+            this.loginAccount[account.walletAddress].delete = 1
 
 
             if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
@@ -166,13 +167,13 @@ const switchBid = {
                 console.log('function cancelBid ');
                 console.log(res);
                 if (res && res?.message != 'No bids found') {
-                    this.loginAccount[account.walletAddress].delete = 0;  
+                    this.loginAccount[account.walletAddress].delete = 0;
 
                     return await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
-    
+
 
                 } else if (res?.message == 'No bids found') {
-                    this.loginAccount[account.walletAddress].delete = 0;  
+                    this.loginAccount[account.walletAddress].delete = 0;
                     await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
 
                     return res
@@ -180,14 +181,14 @@ const switchBid = {
                 } else {
                     return null
                 }
-          
+
 
             }).catch(async e => {
                 const loginData = await connectBlur(account);
                 if (loginData) {
                     this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
                     console.log(this.loginAccount[account.walletAddress]);
-    
+
                 }
                 return null
             });
@@ -206,10 +207,11 @@ const connectBlur = async (account) => {
     // console.log(login);
     // process.exit(0)
     if (login && login?.data?.success) {
-        console.log('Login online walletAddress '  + account.walletAddress);
+        console.log('Login online walletAddress ' + account.walletAddress);
         await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
         return account
     }
+    await axios.post('https://node.greedyrats.com/api/loginblurstatus', { wallet: account.walletAddress, enable: false });
     return await getBlurSign(account).then(async ({ data, headers, agent }) => {
         if (!data || !headers) {
             await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
@@ -244,6 +246,8 @@ const connectBlur = async (account) => {
             });
             console.log(loginData);
             if (loginData) {
+                await axios.post('https://node.greedyrats.com/api/loginblurstatus', { wallet: account.walletAddress, enable: true });
+
                 await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
                 account = updateCookie(account, loginData.accessToken);
 
@@ -276,11 +280,11 @@ function updateCookie(account, accessToken) {
             findEle++;
             const newToken = `authToken=${accessToken}`
             cookiesArray.splice(index, 1, newToken)
-            
+
 
 
         }
-        
+
     }
     if (findEle == 0) {
         cookiesArray.push(`authToken=${accessToken}`)
@@ -290,6 +294,6 @@ function updateCookie(account, accessToken) {
     account.cook_str = result;
     return account
 
- 
+
 }
 module.exports = switchBid;
