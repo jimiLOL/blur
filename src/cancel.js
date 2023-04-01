@@ -38,8 +38,8 @@ async function cancelBid(contractAddress, account, bid) {
     return res.data
   }).catch(e=> {
     console.log(e.message);
-    console.log(e?.response);
-    return e?.data
+    // console.log(e?.response);
+    return e?.response?.data
 
   });
 }
