@@ -34,12 +34,17 @@ async function cancelBid(contractAddress, account, bid) {
 
   return await axios.post('https://core-api.prod.blur.io/v1/collection-bids/cancel', body, {headers: headers}).then(res=> {
     console.log('Cancel bid good time ' + new Date());
+    if (res.headers['content-type'].indexOf('html') >= 0)  {
+      console.log('Cancel bid bad time inert html');
+      return {statusCode: 403, message: 'Cancel bid bad time inert html'}
+
+    }
     console.log(res.data);
     return res.data
   }).catch(e=> {
     console.log(e.message);
     // console.log(e?.response);
-    return e?.response?.data
+    return {statusCode: 403, message: e.message}
 
   });
 }

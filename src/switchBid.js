@@ -13,6 +13,7 @@ const { getFromData } = require('./getFromData');
 const { checkLogin } = require('./checkLogin');
 const { submitBid } = require('./submitBid');
 const { cancelBid } = require('./cancel');
+const helper = require('./helper.js');
 const taskLogin = new Map([]);
 
 
@@ -178,7 +179,14 @@ const switchBid = {
 
                     return res
 
-                } else {
+                } else if (res?.statusCode == 403) {
+                    const loginData = await connectBlur(account);
+                    if (loginData) {
+                        this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
+                        console.log(this.loginAccount[account.walletAddress]);
+    
+                    }
+                    await helper.timeout(500);
                     return null
                 }
 
