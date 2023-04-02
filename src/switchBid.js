@@ -170,7 +170,8 @@ const switchBid = {
                 if (res && res?.message != 'No bids found') {
                     this.loginAccount[account.walletAddress].delete = 0;
 
-                    return await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+                     await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+                     return res
 
 
                 } else if (res?.message == 'No bids found') {
@@ -188,7 +189,14 @@ const switchBid = {
                     }
                     await helper.timeout(500);
                     return null
+                } else if (res?.success) {
+                    this.loginAccount[account.walletAddress].delete = 0;
+                    await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
+
+                    return res
+
                 }
+                
 
 
             }).catch(async e => {

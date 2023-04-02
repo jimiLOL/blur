@@ -95,6 +95,7 @@ class Calculate {
 const calculate = new Calculate();
 
 const copyObj = {};
+const errorCancel = {};
 
 
 const bidRouter = async (contractAddress, account, ele, bid) => {
@@ -110,7 +111,7 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
         copyObj[`${contractAddress}_${ele.price}`] = { ...ele };
 
 
-    } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth) {
+    } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth || errorCancel[`${contractAddress}_${ele.price}`]) {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
 
         if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10)) {
@@ -121,18 +122,26 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
             // console.log(calculate.count(contractAddress), Math.ceil((bid.total_eth / bid.price) * 0.5));
             // снимаем ставку если наш bid упал до 30% от нашей ставки
             await switchBid.deleteBid(contractAddress, account, bid).then(res => {
-                if (res && res?.statusCode != 400) {
+                if (res && res?.statusCode != 400 || res?.success) {
                     console.log('success cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
                     console.log(res);
 
                     calculate.clare(contractAddress);
+                    errorCancel[`${contractAddress}_${ele.price}`] = false;
+                    return
 
                 } else if (res?.statusCode == 400 && res?.message == 'No bids found') {
                     calculate.clare(contractAddress);
 
                     console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
                     console.log(res);
+                    errorCancel[`${contractAddress}_${ele.price}`] = false;
+                    return
 
+
+                } else {
+                    errorCancel[`${contractAddress}_${ele.price}`] = true;
+                    return
 
                 }
 
