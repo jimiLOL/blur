@@ -253,7 +253,7 @@ const check = async (accountAvailable) => {
                     }
                     ele[price].time = new Date().getTime();
 
-                    if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count == 0) {
+                    if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count < 20) {
                         const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
                         const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, {min: ele[price].min_percent, max: ele[price].max_percent});
                         if (await s && !time) {
