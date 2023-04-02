@@ -1,16 +1,22 @@
 // const io = require('socket.io-client');
+require('dotenv').config()
 const { WebSocket } = require('ws');
-
 const subscribe = require('./subscribe');
-
 const Redis = require("ioredis");
-
+const clientRedis = new Redis(process.env.REDIS);
 const collectionBidPriceUpdates = {};
 const collectionBidStats = {};
-
-
-
 const collectionsList = require('./collectionList');
+// const { default: axios } = require('axios');
+// const ethers = require("ethers");
+// const provider = new ethers.providers.WebSocketProvider("wss://wiser-long-orb.discover.quiknode.pro/51c84b242a09064a03176e9c20cf308a489c8fb4");
+const {Network, Alchemy} = require('alchemy-sdk')
+const settings = {
+    apiKey: "_qSfSMAPno3c1rCcufjgEwdqUJmTmDbF", // Replace with your Alchemy API Key.
+    network: Network.ETH_MAINNET, // Replace with your network.
+  };
+  const alchemy = new Alchemy(settings);
+
 const options = {
     transports: ['websocket'],
     upgrade: false,
@@ -31,218 +37,254 @@ const options = {
     }
 };
 
-function subscribeList(socket) {
-    const cl = Array.from(new Set(collectionsList));
-    cl.forEach(element => {
-        subscribe(socket, element, 4216, 'denormalizer.collectionBidPriceUpdates')
-        subscribe(socket, element, 4212, 'denormalizer.collectionBidStats')
-        // subscribe(socket, element, 4219, 'stats.floorUpdate')
+const getInfoCollection = async (contract) => {
+// Github: https://github.com/alchemyplatform/alchemy-sdk-js
+// Setup: npm install alchemy-sdk
 
-    });
+// Optional Config object, but defaults to demo api-key and eth-mainnet.
+
+
+
+return await alchemy.nft
+  .getContractMetadata(contract)
+  .then((contractMetadata)=> {
+    // console.log("Contract Metadata: ", contractMetadata);
+    return contractMetadata;
+//   process.exit(0);
+
+  }).catch(e=> {
+    console.log(e);
+    return null
+    // process.exit(0);
+  });
+
+    
 }
-function start() {
-    return new Promise((resolve, reject) => {
-        const socket = new WebSocket('wss://feeds.prod.blur.io/socket.io/?tabId=pKzRU7SRBQDn&storageId=n3kEOR5uxjEF&EIO=4&transport=websocket');
 
+    function subscribeList(socket) {
+        // const cl = Array.from(new Set(collectionsList));
+        Object.keys(collectionsList).forEach(async element => {
+            const infoContract = await getInfoCollection(element);
+            let setting = await clientRedis.get(`blur_setting_contract_${element}`);
+            if (setting) {
+                setting = JSON.parse(setting);
+                collectionsList[element] = { ...setting };
+             
 
-
-
-        // console.log(socket);
-
-        socket.on('open', () => {
-            console.log('Connected to server');
-            console.log('connected');
-            socket.send(40);
-            subscribeList(socket);
-            const { checkBid } = require('./checkBid.js');
-
-            checkBid();
-            // socket.send('4219["subscribe",["denormalizer.collectionBidStats"]]'); //https://blur.io/collections
-            //   socket.send('4217["subscribe",["0x363c5dc3ff5a93c9ab1ec54337d211148e10f567.orderbook.newTopsOfBooks"]]'); // получаем события по рынку.
-            //   socket.send('4216["subscribe",["0x363c5dc3ff5a93c9ab1ec54337d211148e10f567.denormalizer.collectionBidPriceUpdates"]]'); // получаем изменения в стаканах
-            //   4217["subscribe",["0xed5af388653567af2f388e6224dc7c4b3241c544.orderbook.newTopsOfBooks"]]
-
-            // 0{ "sid": "MlsCv8nid2lnChYNL1Jj", "upgrades": [], "pingInterval": 25000, "pingTimeout": 20000 } 86
-            // 18:35:16.075
-            // 40	2	
-            // 18:35:16.076
-            // 40{"sid":"9CpVnXhqvfMx9s7_L1Jm"}	32	
-            // 18:35:16.280
-            // 420["subscribe",["metadata.computedTraitFrequencies"]]	54	
-            // 18:35:16.281
-            // 421["subscribe",["feeds.collections.updatedNumberListings"]]	60	
-            // 18:35:16.281
-            // 422["subscribe",["denormalizer.collectionBidPriceUpdates"]]	59	
-            // 18:35:16.281
-            // 423["subscribe",["orderbook.newTopsOfBooks"]]	45	
-            // 18:35:16.281
-            // 424["subscribe",["stats.floorUpdate"]]	38	
-            // 18:35:16.281
-            // 425["subscribe",["feeds.activity.eventsCreated"]]	49	
-            // 18:35:16.281
-            // 426["subscribe",["orderbook.ownersBagsUpdates"]]	48	
-            // 18:35:16.281
-            // 427["subscribe",["metadata.received"]]	38	
-            // 18:35:16.281
-            // 428["subscribe",["feeds.nft.updatedScamStatus"]]	48	
-            // 18:35:16.281
-            // 429["subscribe",["pendingTransactions"]]	40	
-            // 18:35:16.281
-            // 4210["subscribe",["stats.volumeUpdate"]]	40	
-            // 18:35:16.281
-            // 4211["subscribe",["stats.collectionSupplyUpdate"]]	50	
-            // 18:35:16.281
-            // 4212["subscribe",["denormalizer.collectionBidStats"]]	53	
-            // 18:35:16.281
-            // 4213["subscribe",["feeds.gasFeeEstimateUpdate"]]
-
-            // setTimeout(() => {
-            //     start()
-
-            // }, 30000);
-            //   42["denormalizer.collectionBidStats",{"contractAddress":"0xccdf1373040d9ca4b5be1392d1945c1dae4a862c","totalValue":"1421.99","bestPrice":"1.82"}]
-            // 42["0xed5af388653567af2f388e6224dc7c4b3241c544.orderbook.newTopsOfBooks",{"contractAddress":"0xed5af388653567af2f388e6224dc7c4b3241c544","tops":[{"tokenId":"3393","topAsk":null,"topBid":{"amount":"15","unit":"WETH","createdAt":"2023-03-10T08:43:39.000Z","marketplace":"OPENSEA"}}]}]
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-            start()
-
-        });
-
-        socket.on('message', (data) => {
-            const event = parseBuffer(data);
-            // console.log(event);
-
-            switch (event.code) {
-                case 2:
-                    socket.send(3);
-                    break;
-                case 42:
-                    handleFortyTwo(event);
-                    break;
-                default:
-                    return;
             }
+            collectionsList[element].name = infoContract.openSea.collectionName;
+            
+            subscribe(socket, element, 4216, 'denormalizer.collectionBidPriceUpdates')
+            subscribe(socket, element, 4212, 'denormalizer.collectionBidStats')
+            // subscribe(socket, element, 4219, 'stats.floorUpdate')
 
-
-            // console.log('Received message:', event);
         });
-    })
+    }
+    function start() {
+        return new Promise((resolve, reject) => {
+            const socket = new WebSocket('wss://feeds.prod.blur.io/socket.io/?tabId=pKzRU7SRBQDn&storageId=n3kEOR5uxjEF&EIO=4&transport=websocket');
 
-}
 
-const bestPrice = {};
 
-const handleFortyTwo = (event) => {
 
-    if (event.event.includes('denormalizer.collectionBidStats')) {
-        // console.log('denormalizer.collectionBidStats');
-        // console.log(event.payload);
-        if (!bestPrice.hasOwnProperty(event.payload.bestPrice)) {
-            bestPrice[event.payload.contractAddress] = {};
-            bestPrice[event.payload.contractAddress] = event.payload;
-        } else {
-            bestPrice[event.payload.contractAddress] = event.payload;
+            // console.log(socket);
 
-        }
-        return;
-    } else if (event.event.includes('orderbook.newTopsOfBooks')) {
-        // console.log('orderbook.newTopsOfBooks');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('denormalizer.collectionBidPriceUpdates')) {
-        // console.log('denormalizer.collectionBidPriceUpdates');
-        // console.log(event.payload);
-        event.payload.updates.forEach(updateData => {
-            if (!collectionBidPriceUpdates.hasOwnProperty(event.payload.contractAddress)) {
-                collectionBidPriceUpdates[event.payload.contractAddress] = {};
+            socket.on('open', () => {
+                console.log('Connected to server');
+                console.log('connected');
+                socket.send(40);
+                subscribeList(socket);
+                const { checkBid } = require('./checkBid.js');
 
+                checkBid();
+                // socket.send('4219["subscribe",["denormalizer.collectionBidStats"]]'); //https://blur.io/collections
+                //   socket.send('4217["subscribe",["0x363c5dc3ff5a93c9ab1ec54337d211148e10f567.orderbook.newTopsOfBooks"]]'); // получаем события по рынку.
+                //   socket.send('4216["subscribe",["0x363c5dc3ff5a93c9ab1ec54337d211148e10f567.denormalizer.collectionBidPriceUpdates"]]'); // получаем изменения в стаканах
+                //   4217["subscribe",["0xed5af388653567af2f388e6224dc7c4b3241c544.orderbook.newTopsOfBooks"]]
+
+                // 0{ "sid": "MlsCv8nid2lnChYNL1Jj", "upgrades": [], "pingInterval": 25000, "pingTimeout": 20000 } 86
+                // 18:35:16.075
+                // 40	2	
+                // 18:35:16.076
+                // 40{"sid":"9CpVnXhqvfMx9s7_L1Jm"}	32	
+                // 18:35:16.280
+                // 420["subscribe",["metadata.computedTraitFrequencies"]]	54	
+                // 18:35:16.281
+                // 421["subscribe",["feeds.collections.updatedNumberListings"]]	60	
+                // 18:35:16.281
+                // 422["subscribe",["denormalizer.collectionBidPriceUpdates"]]	59	
+                // 18:35:16.281
+                // 423["subscribe",["orderbook.newTopsOfBooks"]]	45	
+                // 18:35:16.281
+                // 424["subscribe",["stats.floorUpdate"]]	38	
+                // 18:35:16.281
+                // 425["subscribe",["feeds.activity.eventsCreated"]]	49	
+                // 18:35:16.281
+                // 426["subscribe",["orderbook.ownersBagsUpdates"]]	48	
+                // 18:35:16.281
+                // 427["subscribe",["metadata.received"]]	38	
+                // 18:35:16.281
+                // 428["subscribe",["feeds.nft.updatedScamStatus"]]	48	
+                // 18:35:16.281
+                // 429["subscribe",["pendingTransactions"]]	40	
+                // 18:35:16.281
+                // 4210["subscribe",["stats.volumeUpdate"]]	40	
+                // 18:35:16.281
+                // 4211["subscribe",["stats.collectionSupplyUpdate"]]	50	
+                // 18:35:16.281
+                // 4212["subscribe",["denormalizer.collectionBidStats"]]	53	
+                // 18:35:16.281
+                // 4213["subscribe",["feeds.gasFeeEstimateUpdate"]]
+
+                // setTimeout(() => {
+                //     start()
+
+                // }, 30000);
+                //   42["denormalizer.collectionBidStats",{"contractAddress":"0xccdf1373040d9ca4b5be1392d1945c1dae4a862c","totalValue":"1421.99","bestPrice":"1.82"}]
+                // 42["0xed5af388653567af2f388e6224dc7c4b3241c544.orderbook.newTopsOfBooks",{"contractAddress":"0xed5af388653567af2f388e6224dc7c4b3241c544","tops":[{"tokenId":"3393","topAsk":null,"topBid":{"amount":"15","unit":"WETH","createdAt":"2023-03-10T08:43:39.000Z","marketplace":"OPENSEA"}}]}]
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                start()
+
+            });
+
+            socket.on('message', (data) => {
+                const event = parseBuffer(data);
+                // console.log(event);
+
+                switch (event.code) {
+                    case 2:
+                        socket.send(3);
+                        break;
+                    case 42:
+                        handleFortyTwo(event);
+                        break;
+                    default:
+                        return;
+                }
+
+
+                // console.log('Received message:', event);
+            });
+        })
+
+    }
+
+    const bestPrice = {};
+
+    const handleFortyTwo = (event) => {
+
+        if (event.event.includes('denormalizer.collectionBidStats')) {
+            // console.log('denormalizer.collectionBidStats');
+            // console.log(event.payload);
+            if (!bestPrice.hasOwnProperty(event.payload.bestPrice)) {
+                bestPrice[event.payload.contractAddress] = {};
+                bestPrice[event.payload.contractAddress] = event.payload;
             } else {
-                updateData['total_eth'] = Math.ceil(updateData.price * updateData.executableSize);
-                collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = updateData;
+                bestPrice[event.payload.contractAddress] = event.payload;
+
             }
-            // collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = updateData;
+            return;
+        } else if (event.event.includes('orderbook.newTopsOfBooks')) {
+            // console.log('orderbook.newTopsOfBooks');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('denormalizer.collectionBidPriceUpdates')) {
+            // console.log('denormalizer.collectionBidPriceUpdates');
+            // console.log(event.payload);
+            event.payload.updates.forEach(updateData => {
+                if (!collectionBidPriceUpdates.hasOwnProperty(event.payload.contractAddress)) {
+                    collectionBidPriceUpdates[event.payload.contractAddress] = {};
 
-        });
-        // console.log(collectionBidPriceUpdates);
-        return;
-    } else if (event.event.includes('feeds.collections.updatedNumberListings')) {
-        console.log('feeds.collections.updatedNumberListings');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('stats.floorUpdate')) {
-        console.log('stats.floorUpdate');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('feeds.activity.eventsCreated')) {
-        console.log('feeds.activity.eventsCreated');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('orderbook.ownersBagsUpdates')) {
-        console.log('orderbook.ownersBagsUpdates');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('metadata.received')) {
-        console.log('metadata.received');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('feeds.nft.updatedScamStatus')) {
-        console.log('feeds.nft.updatedScamStatus');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('pendingTransactions')) {
-        console.log('pendingTransactions');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('stats.volumeUpdate')) {
-        console.log('stats.volumeUpdate');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('stats.collectionSupplyUpdate')) {
-        console.log('stats.collectionSupplyUpdate');
-        console.log(event.payload);
-        return;
-    } else if (event.event.includes('feeds.gasFeeEstimateUpdate')) {
-        console.log('feeds.gasFeeEstimateUpdate');
-        console.log(event.payload);
-        return;
+                } else {
+                    updateData['total_eth'] = Math.ceil(updateData.price * updateData.executableSize);
+                    collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = updateData;
+                    collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = Object.assign({}, collectionBidPriceUpdates[event.payload.contractAddress][updateData.price], collectionsList[event.payload.contractAddress]);
+                  
+                }
+                // collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = updateData;
+
+            });
+            // console.log(collectionBidPriceUpdates);
+            return;
+        } else if (event.event.includes('feeds.collections.updatedNumberListings')) {
+            console.log('feeds.collections.updatedNumberListings');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('stats.floorUpdate')) {
+            console.log('stats.floorUpdate');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('feeds.activity.eventsCreated')) {
+            console.log('feeds.activity.eventsCreated');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('orderbook.ownersBagsUpdates')) {
+            console.log('orderbook.ownersBagsUpdates');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('metadata.received')) {
+            console.log('metadata.received');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('feeds.nft.updatedScamStatus')) {
+            console.log('feeds.nft.updatedScamStatus');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('pendingTransactions')) {
+            console.log('pendingTransactions');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('stats.volumeUpdate')) {
+            console.log('stats.volumeUpdate');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('stats.collectionSupplyUpdate')) {
+            console.log('stats.collectionSupplyUpdate');
+            console.log(event.payload);
+            return;
+        } else if (event.event.includes('feeds.gasFeeEstimateUpdate')) {
+            console.log('feeds.gasFeeEstimateUpdate');
+            console.log(event.payload);
+            return;
+        }
+
+
+
     }
 
+    const handleSaleEvent = async (item) => {
+        console.log('SALE EVENT');
+        // const {asset, transaction} = item;
 
-
-}
-
-const handleSaleEvent = async (item) => {
-    console.log('SALE EVENT');
-    // const {asset, transaction} = item;
-
-}
-
-const parseBuffer = (buffer) => {
-    const bufferString = buffer.toString();
-    const code = parseInt(bufferString);
-    const arr = bufferString.indexOf('[');
-    const obj = bufferString.indexOf('{');
-    const firstChar = (arr === -1 || obj === -1) ?
-        Math.max(arr, obj)
-        : Math.min(arr, obj);
-    const parsed = JSON.parse(bufferString.slice(firstChar));
-
-    return {
-        code,
-        event: parsed[1] ? parsed[0] : 'unknown',
-        payload: parsed[1] ? parsed[1] : parsed
     }
-}
 
-function collectionBidPriceUpdatesWatch() {
-    return collectionBidPriceUpdates;
-}
+    const parseBuffer = (buffer) => {
+        const bufferString = buffer.toString();
+        const code = parseInt(bufferString);
+        const arr = bufferString.indexOf('[');
+        const obj = bufferString.indexOf('{');
+        const firstChar = (arr === -1 || obj === -1) ?
+            Math.max(arr, obj)
+            : Math.min(arr, obj);
+        const parsed = JSON.parse(bufferString.slice(firstChar));
 
-function getBestPrice() {
-    return bestPrice
-}
+        return {
+            code,
+            event: parsed[1] ? parsed[0] : 'unknown',
+            payload: parsed[1] ? parsed[1] : parsed
+        }
+    }
 
-module.exports = { start, collectionBidPriceUpdatesWatch, getBestPrice }
+    function collectionBidPriceUpdatesWatch() {
+        return collectionBidPriceUpdates;
+    }
+
+    function getBestPrice() {
+        return bestPrice
+    }
+
+    module.exports = { start, collectionBidPriceUpdatesWatch, getBestPrice }
 

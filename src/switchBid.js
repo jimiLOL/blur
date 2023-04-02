@@ -176,7 +176,7 @@ const switchBid = {
             }
 
             return await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid).then(async res => {
-                console.log('function cancelBid ');
+                console.log('function cancelBid ' + contractAddress);
                 console.log(res);
                 if (res && res?.message != 'No bids found') {
 

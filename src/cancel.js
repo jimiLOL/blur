@@ -3,8 +3,8 @@
 const axios = require('axios');
 
 async function cancelBid(contractAddress, account, bid) {
-  console.log('cancelBid');
-  console.log(bid);
+  // console.log('cancelBid');
+  // console.log(bid);
     const body = {prices:[],contractAddress:""};
     body.prices.push(bid.price);
     body.contractAddress = contractAddress;
@@ -33,7 +33,7 @@ async function cancelBid(contractAddress, account, bid) {
 
 
   return await axios.post('https://core-api.prod.blur.io/v1/collection-bids/cancel', body, {headers: headers}).then(res=> {
-    console.log('Cancel bid good time ' + new Date());
+    console.log('Cancel bid good time ' + new Date() + ' ' + res.status + ' contractAddress ' + contractAddress);
     if (res.headers['content-type'].indexOf('html') >= 0)  {
       console.log('Cancel bid bad time inert html');
       return {statusCode: 403, message: 'Cancel bid bad time inert html'}
@@ -42,7 +42,7 @@ async function cancelBid(contractAddress, account, bid) {
     console.log(res.data);
     return res.data
   }).catch(e=> {
-    console.log(e.message);
+    console.log(e.message + ' contractAddress ' + contractAddress);
     // console.log(e?.response);
     return {statusCode: 403, message: e.message}
 

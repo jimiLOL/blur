@@ -192,8 +192,9 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
 
 }
 
-const checkMinPrice = async (price, contract) => {
-    const { min, max } = await getP.getPercent();
+const checkMinPrice = (price, contract, {min, max}) => {
+    // const { min, max } = await getP.getPercent();
+    // console.log(min, max);
     if (!getBestPrice().hasOwnProperty(contract)) {
         return false
 
@@ -252,9 +253,9 @@ const check = async (accountAvailable) => {
                     }
                     ele[price].time = new Date().getTime();
 
-                    if (!bid && ele[price].bidderCount >= 5 || bid_obj?.count?.count == 0) {
+                    if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count == 0) {
                         const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
-                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key);
+                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, {min: ele[price].min_percent, max: ele[price].max_percent});
                         if (await s && !time) {
                             // console.log('already bid ' + price);
                             await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
