@@ -13,8 +13,8 @@ let balanceWalletBlurETh = {};
 
 class checkPercent {
     constructor() {
-        this.min = 98;
-        this.max = 100;
+        this.min = 99.2;
+        this.max = 99.8;
         this.date = new Date().getTime();
     }
     async getPercent() {
@@ -198,8 +198,8 @@ const checkMinPrice = async (price, contract) => {
         return false
 
     }
-    const d = getBestPrice()[contract].bestPrice;
-    const p = (Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100;
+    // const d = getBestPrice()[contract].bestPrice;
+    const p = ((Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100).toFixed(1);
     // console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' result ' + result);
 
     return p < max && p > min ? true : false;
@@ -254,8 +254,8 @@ const check = async (accountAvailable) => {
 
                     if (!bid && ele[price].bidderCount >= 5 || bid_obj?.count?.count == 0) {
                         const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
-                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key) && !time;
-                        if (await s) {
+                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key);
+                        if (await s && !time) {
                             // console.log('already bid ' + price);
                             await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
 
