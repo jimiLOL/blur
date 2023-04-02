@@ -102,7 +102,7 @@ const switchBid = {
             date.setMinutes(date.getMinutes() + 16);
             // date.setDate(date.getDate() + 1);
             const isoDate = date.toISOString();
-            const countBid = Math.floor(myBalance * 0.9 / bid.price);
+            const countBid = Math.floor(myBalance * 0.99 / bid.price);
            
             const body = {
                 price: {
