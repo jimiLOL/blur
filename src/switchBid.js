@@ -219,7 +219,10 @@ const connectBlur = async (account) => {
         await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
         return account
     }
-    await axios.post('https://node.greedyrats.com/api/loginblurstatus', { wallet: account.walletAddress, enable: false });
+      axios.post('https://node.greedyrats.com/api/loginblurstatus', { wallet: account.walletAddress, enable: false }).catch(e=> {
+        console.log(e.message);
+     });
+
     return await getBlurSign(account).then(async ({ data, headers, agent }) => {
         if (!data || !headers) {
             await clientRedis.set(`login_blur_${account.walletAddress}`, 0, 'ex', 600);
@@ -254,7 +257,9 @@ const connectBlur = async (account) => {
             });
             console.log(loginData);
             if (loginData) {
-                await axios.post('https://node.greedyrats.com/api/loginblurstatus', { wallet: account.walletAddress, enable: true });
+                 axios.post('https://node.greedyrats.com/api/loginblurstatus', { wallet: account.walletAddress, enable: true }).catch(e=> {
+                    console.log(e.message);
+                 });
 
                 await clientRedis.set(`login_blur_${account.walletAddress}`, 1, 'ex', 600);
                 account = updateCookie(account, loginData.accessToken);
