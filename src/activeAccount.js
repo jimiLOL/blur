@@ -115,7 +115,7 @@ const getBlurCookie = (cookies) => {
 
     });
     // console.log(cook_str);
-    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent, authToken: authToken, proxy: cookies.proxy, sec_ch_ua: cookies.sec_ch_ua, sec_ch_ua_mobile: cookies.sec_ch_ua_mobile, sec_ch_ua_platform: cookies.sec_ch_ua_platform, AcceptLanguage: cookies.AcceptLanguage, AcceptEncoding: cookies.AcceptEncoding};
+    return { cook_str: cook_str, phone: cookies.phone, walletAddress: cookies.walletAddress, UserAgent: cookies.UserAgent, authToken: authToken, proxy: cookies.proxy, sec_ch_ua: cookies.sec_ch_ua, sec_ch_ua_mobile: cookies.sec_ch_ua_mobile, sec_ch_ua_platform: cookies.sec_ch_ua_platform, AcceptLanguage: cookies.AcceptLanguage, AcceptEncoding: cookies.AcceptEncoding, date_login: cookies.date_login};
 }
 
 module.exports = ActiveAccount;

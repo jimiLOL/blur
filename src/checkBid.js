@@ -106,6 +106,8 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
     // console.log(ele); // event
     // console.log('calculate.count() ' + calculate.count(contractAddress));
 
+    // const accountLoginDate = switchBid.loginAccount
+
 
     if (!copyObj[`${contractAddress}_${ele.price}`]) {
         copyObj[`${contractAddress}_${ele.price}`] = { ...ele };
@@ -114,7 +116,7 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
     } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth || errorCancel[`${contractAddress}_${ele.price}`]) {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
 
-        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10)) {
+        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10) || account.date_login < (new Date().getTime() - 1000 * 60 * 25)) {
             console.log('bid.total_eth*0.3 > ele.total_eth');
 
             // console.log(bid.total_eth * 0.3, ele.total_eth);
