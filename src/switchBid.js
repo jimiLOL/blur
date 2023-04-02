@@ -34,6 +34,16 @@ const taskRouter = (account) => {
     }
 
 }
+const setBidVal = (countBid) => {
+    if (countBid == 0) {
+        return 1
+    } else if (countBid >= 100) {
+        return 90
+    } else {
+        return countBid
+
+    }
+} 
 
 const switchBid = {
     loginAccount: {},
@@ -93,12 +103,13 @@ const switchBid = {
             // date.setDate(date.getDate() + 1);
             const isoDate = date.toISOString();
             const countBid = Math.floor(myBalance * 0.9 / bid.price);
+           
             const body = {
                 price: {
                     unit: 'BETH',
                     amount: bid.price // 
                 },
-                quantity: countBid == 0 ? 1 : countBid,
+                quantity: setBidVal(countBid),
                 expirationTime: isoDate,
                 contractAddress: contractAddress,
             }
