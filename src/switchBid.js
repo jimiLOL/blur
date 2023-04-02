@@ -182,6 +182,8 @@ const switchBid = {
 
                 } else if (res?.statusCode == 403) {
                     const loginData = await connectBlur(account);
+                    this.loginAccount[account.walletAddress].delete = 0;
+
                     if (loginData) {
                         this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
                         console.log(this.loginAccount[account.walletAddress]);

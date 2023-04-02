@@ -116,8 +116,9 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
     } else if (copyObj[`${contractAddress}_${ele.price}`].total_eth != ele.total_eth || errorCancel[`${contractAddress}_${ele.price}`]) {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
 
-        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10) || account.date_login < (new Date().getTime() - 1000 * 60 * 25)) {
-            console.log('bid.total_eth*0.3 > ele.total_eth');
+        if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10) || account.date_login < (new Date().getTime() - 1000 * 60 * 28)) {
+            console.log('Снимаем ставку перед разлогином ' + account.date_login < (new Date().getTime() - 1000 * 60 * 25));
+            // console.log();
 
             // console.log(bid.total_eth * 0.3, ele.total_eth);
             // console.log('calculate.count() > Math.ceil((bid.total_eth/bid.price)*0.5)');
@@ -252,7 +253,8 @@ const check = async (accountAvailable) => {
                     ele[price].time = new Date().getTime();
 
                     if (!bid && ele[price].bidderCount >= 5 || bid_obj?.count?.count < 20) {
-                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key);
+                        const time = account.date_login < (new Date().getTime() - 1000 * 60 * 28);
+                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key) && !time;
                         if (await s) {
                             // console.log('already bid ' + price);
                             await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
