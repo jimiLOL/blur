@@ -223,11 +223,12 @@ const check = async (accountAvailable) => {
                 const ele = collectionBidPriceUpdatesWatch()[key];
                 let keys = Object.keys(ele);
                 keys.sort((a, b) => {
-                    return Number(ele[a].price) - Number(ele[b].price);
+                    return Number(ele[b].price) - Number(ele[a].price);
                 });
-                // console.log('Price Array ' + keys);
+                console.log('Price Array ' + keys);
+                let filterPrice = keys.filter(x => Number(x) < Number(getBestPrice()[key].bestPrice))
 
-                keys.forEach(async price => {
+                filterPrice.forEach(async price => {
                     // console.log(ele[price]);
                     // console.log(ele[price].total_eth);
                     // console.log(Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance), Number(price));
