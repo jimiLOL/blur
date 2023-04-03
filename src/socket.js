@@ -81,7 +81,7 @@ function subscribeList(socket) {
 
 
         }
-        collectionsList[element].name = infoContract.openSea.collectionName;
+        collectionsList[element].name = infoContract?.openSea?.collectionName ? infoContract.openSea.collectionName: 'Unkown';
         collectionsList[element].contract = element;
         setListCollection(collectionsList[element]);
      

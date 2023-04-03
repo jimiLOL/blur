@@ -206,7 +206,7 @@ const switchBid = {
                     this.loginAccount[account.walletAddress].delete = 0;
                     return null
                 } else if (res?.success) {
-                    await helper.timeout(10000);
+                    await helper.timeout(30000);
 
                     this.loginAccount[account.walletAddress].delete = 0;
                     await clientRedis.del(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`);
