@@ -225,53 +225,56 @@ const check = async (accountAvailable) => {
                 keys.sort((a, b) => {
                     return Number(ele[b].price) - Number(ele[a].price);
                 });
-                console.log('Price Array ' + keys);
-                let filterPrice = keys.filter(x => Number(x) < Number(getBestPrice()[key].bestPrice))
+                // console.log('Price Array ' + keys);
+                if (getBestPrice()[key]?.bestPrice) {
+                    let filterPrice = keys.filter(x => Number(x) < Number(getBestPrice()[key].bestPrice))
 
-                filterPrice.forEach(async price => {
-                    // console.log(ele[price]);
-                    // console.log(ele[price].total_eth);
-                    // console.log(Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance), Number(price));
-                    // у нас отсортированый массив по возрастанию цены, поэтмоу мы просто смотрим где у нас подходит условие под balance*3
-                    // checkMinPrice(price, key)
-                    // if (await clientRedis.exists(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)) {
-                    //     await clientRedis.del(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)
-
-
-                    // }
-
-
-                    // console.log('total_eth ' + ele[price].total_eth);
-                    // console.log('price ' + ele[price].price);
-
-                    const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
-                    // const bid = null;
-                    let bid_obj = null;
-                    if (bid) {
-                        bid_obj = JSON.parse(bid);
-                        // console.log(bid_obj);
-
-                    }
-                    ele[price].time = new Date().getTime();
-
-                    if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count < 20) {
-                        const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
-                        const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, {min: ele[price].min_percent, max: ele[price].max_percent});
-                        if (await s && !time) {
-                            // console.log('already bid ' + price);
-                            await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
-
+                    filterPrice.forEach(async price => {
+                        // console.log(ele[price]);
+                        // console.log(ele[price].total_eth);
+                        // console.log(Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance), Number(price));
+                        // у нас отсортированый массив по возрастанию цены, поэтмоу мы просто смотрим где у нас подходит условие под balance*3
+                        // checkMinPrice(price, key)
+                        // if (await clientRedis.exists(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)) {
+                        //     await clientRedis.del(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)
+    
+    
+                        // }
+    
+    
+                        // console.log('total_eth ' + ele[price].total_eth);
+                        // console.log('price ' + ele[price].price);
+    
+                        const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
+                        // const bid = null;
+                        let bid_obj = null;
+                        if (bid) {
+                            bid_obj = JSON.parse(bid);
+                            // console.log(bid_obj);
+    
                         }
-                        // проверем что участников торгов больше 10
-
-                    } else if (bid) {
-                        // let bid_obj = JSON.parse(bid);
-                        // console.log(bid_obj);
-                        await bidRouter(key, account, ele[price], bid_obj.bid);
-
-                    }
-
-                });
+                        ele[price].time = new Date().getTime();
+    
+                        if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count < 20) {
+                            const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
+                            const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, {min: ele[price].min_percent, max: ele[price].max_percent});
+                            if (s && !time) {
+                                // console.log('already bid ' + price);
+                                await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
+    
+                            }
+                            // проверем что участников торгов больше 10
+    
+                        } else if (bid) {
+                            // let bid_obj = JSON.parse(bid);
+                            // console.log(bid_obj);
+                            await bidRouter(key, account, ele[price], bid_obj.bid);
+    
+                        }
+    
+                    });
+                }
+           
 
 
 

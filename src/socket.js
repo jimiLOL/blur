@@ -61,10 +61,11 @@ const getInfoCollection = async (contract) => {
 
 };
 const setListCollection = async (ele) => {
+    // await clientRedis.del('blur_collection_list')
     let value = await clientRedis.lrange('blur_collection_list', 0, -1);
-    let find = value.filter(x => x.contract == ele.contract);
+    let find = value.filter(x => JSON.parse(x).contract == ele.contract);
     if (find.length == 0) {
-        await clientRedis.lpush(`blur_collection_list`, ele)
+        await clientRedis.lpush(`blur_collection_list`, JSON.stringify(ele))
 
     }
 }
