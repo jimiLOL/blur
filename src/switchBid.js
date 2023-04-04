@@ -172,6 +172,7 @@ const switchBid = {
 
 
             if (!this.loginAccount.hasOwnProperty(account.walletAddress)) {
+                this.loginAccount[account.walletAddress].delete = 0;
                 return null
             }
 
