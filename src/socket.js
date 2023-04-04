@@ -77,7 +77,7 @@ function subscribeList(socket) {
         let setting = await clientRedis.get(`blur_setting_contract_${element}`);
         if (setting) {
             setting = JSON.parse(setting);
-            collectionsList[element] = { ...setting };
+            collectionsList[element] = Object.assign({}, collectionsList[element], setting);
 
 
         }
