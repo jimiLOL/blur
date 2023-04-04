@@ -40,7 +40,7 @@ const checkUserBid = async (account) => {
 
     };
 
-    return await axios.get(`https://core-api.prod.blur.io/v1/collection-bids/user/${account.walletAddress}?filters=%7B%7D`, {headers: headers}).then(res=> {
+    return await axios.get(`https://core-api.prod.blur.io/v1/collection-bids/user/${account.walletAddress.toLocaleLowerCase()}?filters=%7B%7D`, {headers: headers}).then(res=> {
         console.log(res.data);
         return res.data;
     }).catch(e=> {

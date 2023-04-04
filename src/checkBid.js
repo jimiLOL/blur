@@ -36,11 +36,12 @@ async function cancelAllBid(req, res) {
     for (let index = 0; index < accountAvailable.length; index++) {
         const account = accountAvailable[index];
         promiseArray.push(await checkUserBid(account).then(async (data) => {
-            console.log(data.priceLevels);
+          
             if (data.success) {
                 const arrayPromise = [];
-                for (let i = 0; i < data.priceLevels; i++) {
+                for (let i = 0; i < data.priceLevels.length; i++) {
                     const element = data.priceLevels[i];
+                    // console.log(element);
                     arrayPromise.push(await switchBid.deleteBid(element.contractAddress, account, element))
                     
                 }
