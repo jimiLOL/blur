@@ -69,18 +69,45 @@ const setListCollection = async (ele) => {
 
     }
 }
+class SetCollectionClass {
+    constructor() {
+        this.time = new Date().getTime();
+        this.setting = null;
+    }
+    async getData(contract) {
+        let setting = await clientRedis.get(`blur_setting_contract_${contract}`);
+        if (setting) {
+            setting = JSON.parse(setting);
+            collectionsList[element] = Object.assign({}, collectionsList[contract], setting);
+    
+    
+        }
 
+    }
+    updateSettingCollection(contract) {
+        if (!this.setting || this.time < (new Date().getTime()-1000*60)) {
+            this.getData(contract)
+
+        }
+
+    }
+}
+// const setCollection = async (element) => {
+//     let setting = await clientRedis.get(`blur_setting_contract_${element}`);
+//     if (setting) {
+//         setting = JSON.parse(setting);
+//         collectionsList[element] = Object.assign({}, collectionsList[element], setting);
+
+
+//     }
+// }
+const setCollection = new SetCollectionClass()
 function subscribeList(socket) {
     // const cl = Array.from(new Set(collectionsList));
     Object.keys(collectionsList).forEach(async element => {
         const infoContract = await getInfoCollection(element);
-        let setting = await clientRedis.get(`blur_setting_contract_${element}`);
-        if (setting) {
-            setting = JSON.parse(setting);
-            collectionsList[element] = Object.assign({}, collectionsList[element], setting);
-
-
-        }
+         setCollection.updateSettingCollection(element);
+       
         collectionsList[element].name = infoContract?.openSea?.collectionName ? infoContract.openSea.collectionName: 'Unkown';
         collectionsList[element].contract = element;
         setListCollection(collectionsList[element]);
@@ -207,11 +234,13 @@ const handleFortyTwo = (event) => {
     } else if (event.event.includes('denormalizer.collectionBidPriceUpdates')) {
         // console.log('denormalizer.collectionBidPriceUpdates');
         // console.log(event.payload);
-        event.payload.updates.forEach(updateData => {
+        event.payload.updates.forEach(async updateData => {
             if (!collectionBidPriceUpdates.hasOwnProperty(event.payload.contractAddress)) {
                 collectionBidPriceUpdates[event.payload.contractAddress] = {};
 
             } else {
+                setCollection.updateSettingCollection(event.payload.contractAddress);
+             
                 updateData['total_eth'] = Math.ceil(updateData.price * updateData.executableSize);
                 collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = updateData;
                 collectionBidPriceUpdates[event.payload.contractAddress][updateData.price] = Object.assign({}, collectionBidPriceUpdates[event.payload.contractAddress][updateData.price], collectionsList[event.payload.contractAddress]);
