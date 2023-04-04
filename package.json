@@ -5,6 +5,9 @@
   "author": "Abraham",
   "license": "MIT",
   "private": true,
+  "engines" : { 
+    "node" : ">=16.0.0 <17.0.0"
+  },
   "scripts": {
     "server": "nodemon --config nodemon.json server_blur",
     "start": "node --max-old-space-size=32192 --experimental-modules server_blur.js"
@@ -19,7 +22,8 @@
     "eth-sig-util": "^3.0.1",
     "ethereum-input-data-decoder": "^0.4.2",
     "ethers": "^5.4",
-    "fastify": "^4.14.1",
+    "fastify": "^3.28.0",
+    "fastify-cors": "^6.0.3",
     "ioredis": "^5.3.1",
     "moment": "^2.29.4",
     "mongoose": "^7.0.1",

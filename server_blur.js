@@ -1,37 +1,47 @@
 const { Alchemy, Network, NftSaleMarketplace } = require("alchemy-sdk");
+const server = require('fastify')({ logger: false });
 
-// const CronJob = require("cron").CronJob;
-// const CronTime = require("cron").CronTime;
+server.register(require('fastify-cors'), 
+// function (instance) {
 
-
-// const dataCron = new Date();
-// dataCron.setSeconds(dataCron.getSeconds() + 60);
-
-// const reloadServer = () => {
-
-
-//     // process.exit(1)
-//     console.log('Start cron');
-//     return
+//   return (req, callback) => {
+//     let corsOptions;
+//     const origin = req.headers.origin;
+//     console.log(origin);
+//     // do not include CORS headers for requests from localhost
+//     const hostname = new URL(origin).hostname;
+//     if(hostname === "localhost"){
+//       corsOptions = { origin: false }
+//     } else {
+//       corsOptions = { origin: true }
+//     }
+//     callback(null, corsOptions) // callback expects two parameters: error and options
+//   }
 // }
-// const job = new CronJob(dataCron, reloadServer());
+{
+  origin: "*",
+  methods: ["POST", "GET"]
+} // только для разработки
+)
 
-// // job.start()
+// server.addContentTypeParser('text/json', { parseAs: 'string' }, server.getDefaultJsonParser('ignore', 'ignore'))
 
 
-// function startCron(cron, time) {
-//     let d = new Date();
-//     d.setSeconds(d.getSeconds() + time);
-//     cron.setTime(new CronTime(d));
-//     cron.start();
-// }
+server.register(require('./src/routers'));
 
-// startCron(job, 7200)
+const port = process.env.PORT || 4343;
+
+server.listen(port, '0.0.0.0', (err) => {
+  if (err) return console.log(err);
+  console.log("Подключение прошло на порт " + port);
+});
 
 
 const { start } = require('./src/socket');
 
 (async () => {
+// checkUserBid()
+
 
     await start(); // начинаем получать данные с биржи
 

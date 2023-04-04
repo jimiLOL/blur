@@ -9,7 +9,69 @@ const clientRedis = new Redis(process.env.REDIS);
 const switchBid = require('./switchBid');
 
 let balanceWalletBlurETh = {};
- 
+
+const { checkUserBid } = require('./checkUserBid');
+let enableBid = true;
+
+function getStatusWork(req, res) {
+    return res.status(200).send({title: 'ok', data: enableBid});
+
+}
+async function switchEnableScript(req, res) {
+    // await clientRedis.set('enableBidBlur', !enableBid);
+    enableBid = !enableBid;
+
+    return res.status(200).send({title: 'ok', data: enableBid});
+
+
+}
+
+async function cancelAllBid(req, res) {
+    // await clientRedis.set('enableBidBlur', false);
+    enableBid = false;
+
+    const accountAvailable = await newCookies();
+    const promiseArray = [];
+
+    for (let index = 0; index < accountAvailable.length; index++) {
+        const account = accountAvailable[index];
+        promiseArray.push(await checkUserBid(account).then(async (data) => {
+            console.log(data.priceLevels);
+            if (data.success) {
+                const arrayPromise = [];
+                for (let i = 0; i < data.priceLevels; i++) {
+                    const element = data.priceLevels[i];
+                    arrayPromise.push(await switchBid.deleteBid(element.contractAddress, account, element))
+                    
+                }
+                return await Promise.allSettled(arrayPromise);
+                
+
+            } else {
+                return null
+            }
+        
+
+        }));
+        
+
+
+
+    }
+    await Promise.allSettled(promiseArray).then((data) => {
+        console.log(data);
+        return data
+    })
+
+
+    return res.status(200).send({title: 'ok', data: null});
+
+
+
+
+
+}
+
 
 class checkPercent {
     constructor() {
@@ -29,15 +91,16 @@ class checkPercent {
         } else {
             return { min: this.min, max: this.max }
         }
-    
+
     }
 }
 const getP = new checkPercent();
 
 async function checkBid() {
+    // enableBid = await clientRedis.get('enableBidBlur');
 
 
-    while (true) {
+    while (enableBid) {
         const accountAvailable = await newCookies();
 
         if (accountAvailable) {
@@ -192,7 +255,7 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
 
 }
 
-const checkMinPrice = (price, contract, {min, max}) => {
+const checkMinPrice = (price, contract, { min, max }) => {
     // const { min, max } = await getP.getPercent();
     // console.log(min, max);
     if (!getBestPrice().hasOwnProperty(contract)) {
@@ -237,44 +300,44 @@ const check = async (accountAvailable) => {
                         // checkMinPrice(price, key)
                         // if (await clientRedis.exists(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)) {
                         //     await clientRedis.del(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`)
-    
-    
+
+
                         // }
-    
-    
+
+
                         // console.log('total_eth ' + ele[price].total_eth);
                         // console.log('price ' + ele[price].price);
-    
+
                         const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
                         // const bid = null;
                         let bid_obj = null;
                         if (bid) {
                             bid_obj = JSON.parse(bid);
                             // console.log(bid_obj);
-    
+
                         }
                         ele[price].time = new Date().getTime();
-    
+
                         if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count < 20) {
                             const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
-                            const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, {min: ele[price].min_percent, max: ele[price].max_percent});
+                            const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, { min: ele[price].min_percent, max: ele[price].max_percent });
                             if (s && !time) {
                                 // console.log('already bid ' + price);
                                 await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
-    
+
                             }
                             // проверем что участников торгов больше 10
-    
+
                         } else if (bid) {
                             // let bid_obj = JSON.parse(bid);
                             // console.log(bid_obj);
                             await bidRouter(key, account, ele[price], bid_obj.bid);
-    
+
                         }
-    
+
                     });
                 }
-           
+
 
 
 
@@ -294,4 +357,4 @@ const check = async (accountAvailable) => {
 
 
 
-module.exports = { checkBid };
+module.exports = { checkBid, cancelAllBid, switchEnableScript, getStatusWork };
