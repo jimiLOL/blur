@@ -78,7 +78,7 @@ class SetCollectionClass {
         let setting = await clientRedis.get(`blur_setting_contract_${contract}`);
         if (setting) {
             setting = JSON.parse(setting);
-            collectionsList[element] = Object.assign({}, collectionsList[contract], setting);
+            collectionsList[contract] = Object.assign({}, collectionsList[contract], setting);
     
     
         }
