@@ -58,13 +58,13 @@ async function cancelAllBid(req, res) {
 
 
     }
-    await Promise.allSettled(promiseArray).then((data) => {
+    const data = await Promise.allSettled(promiseArray).then((data) => {
         console.log(data);
         return data
     })
 
 
-    return res.status(200).send({title: 'ok', data: null});
+    return res.status(200).send({title: 'ok', data: data});
 
 
 
