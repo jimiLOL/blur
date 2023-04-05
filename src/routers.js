@@ -1,4 +1,4 @@
-const {cancelAllBid, switchEnableScript, getStatusWork, cancelBidForWallet} = require('./rpcBlur/api');
+const {cancelAllBid, switchEnableScript, getStatusWork, cancelBidForWallet} = require('./api');
 
 async function routes(server, options) {
     server.get('/api/cancel_all_bid', async (req, res) => await cancelAllBid(req, res));

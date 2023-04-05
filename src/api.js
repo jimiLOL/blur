@@ -1,12 +1,13 @@
 
 const EventEmitter = require('events');
 const emitter = new EventEmitter();
-
-const switchBid = require('./../switchBid');
+const switchBid = require('./switchBid');
 
 ``
-const { checkUserBid } = require('./../checkUserBid');
-const { statusEnableScript } = require('./../checkBid')
+const { checkUserBid } = require('./checkUserBid');
+const { statusEnableScript, getEmitter } = require('./checkBid');
+
+getEmitter(emitter)
 
 function getStatusWork(req, res) {
     return res.status(200).send({ title: 'ok', data: statusEnableScript() });
@@ -117,5 +118,28 @@ async function cancelAllBid(req, res) {
 
 }
 
+const exportEmitter = () => {
+    return Promise((resolve)=> {
+        setInterval(() => {
+            if (emitter) {
+                resolve(emitter)
+            }
+            
+        }, 200);
+    })
+};
+const exportObj = {switchEnableScript, getStatusWork, cancelBidForWallet, cancelAllBid, emitter};
 
-module.exports = { switchEnableScript, getStatusWork, cancelBidForWallet, cancelAllBid, emitter }
+function e() {
+    return new Promise((resolve)=> {
+        setInterval(async () => {
+            if (await exportEmitter()) {
+                resolve(exportObj)
+
+            }
+        }, 200);
+      
+
+    })
+}
+module.exports = {switchEnableScript, getStatusWork, cancelBidForWallet, cancelAllBid, emitter}

@@ -34,18 +34,17 @@ const port = process.env.PORT || 4343;
 server.listen(port, '0.0.0.0', (err) => {
   if (err) return console.log(err);
   console.log("Подключение прошло на порт " + port);
+    start(); // начинаем получать данные с биржи
+
 });
 
 
 const { start } = require('./src/socket');
 
-(async () => {
-// checkUserBid()
-
-
-    await start(); // начинаем получать данные с биржи
-
-})();
+// setTimeout(async() => {
+//     await start(); // начинаем получать данные с биржи
+    
+// }, 1000);
 
 
 

@@ -8,15 +8,17 @@ const Redis = require("ioredis");
 const clientRedis = new Redis(process.env.REDIS);
 const switchBid = require('./switchBid');
 
-const {emitter} = require('./rpcBlur/api');
-
-// let balanceWalletBlurETh = {};
-
+ 
 let enableBid = true;
 
-emitter.on('switchWorkScript', (data) => {
-    enableBid = data;
-})
+ 
+
+function getEmitter(emitter) {
+    emitter.on('switchWorkScript', (data) => {
+        enableBid = data;
+    })
+}
+
 
 const statusEnableScript = () => {
     return enableBid
@@ -308,4 +310,4 @@ const check = async (accountAvailable) => {
 
 
 
-module.exports = { checkBid, statusEnableScript };
+module.exports = { checkBid, statusEnableScript, getEmitter };
