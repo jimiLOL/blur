@@ -1,6 +1,4 @@
-// const collectionsList = [ ];
-// const collectionsList = ['0x364c828ee171616a39897688a831c2499ad972ec']
-
+ 
 const collectionsList = {
     "0x34d85c9cdeb23fa97cb08333b511ac86e1c4e258": {
         max_percent: 99.7,
@@ -22,41 +20,6 @@ const collectionsList = {
         min_percent: 99.2,
         count_people: 5,
         
-    },
-    "0x524cab2ec69124574082676e6f654a18df49a048": {
-        msx_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
-    },
-    "0x1b829b926a14634d36625e60165c0770c09d02b2": {
-        max_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
-    },
-    "0x704bf12276f5c4bc9349d0e119027ead839b081b": {
-        max_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
-    },
-    "0x9690b63eb85467be5267a3603f770589ab12dc95": {
-        max_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
-    },
-    "0x231d3559aa848bf10366fb9868590f01d34bf240": {
-        max_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
-    },
-    "0xb75f09b4340aeb85cd5f2dd87d31751edc11ed39": {
-        max_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
-    },
-    "0x3c6fbc94288f5af5201085948ddb18aded2e6879": {
-        max_percent: 99.7,
-        min_percent: 99.2,
-        count_people: 5
     },
     "0x6dc6001535e15b9def7b0f6a20a2111dfa9454e2": {
         max_percent: 99.7,
