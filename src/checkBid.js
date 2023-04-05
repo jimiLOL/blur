@@ -8,68 +8,18 @@ const Redis = require("ioredis");
 const clientRedis = new Redis(process.env.REDIS);
 const switchBid = require('./switchBid');
 
-let balanceWalletBlurETh = {};
+const {emitter} = require('./rpcBlur/api');
 
-const { checkUserBid } = require('./checkUserBid');
+// let balanceWalletBlurETh = {};
+
 let enableBid = true;
 
-function getStatusWork(req, res) {
-    return res.status(200).send({title: 'ok', data: enableBid});
+emitter.on('switchWorkScript', (data) => {
+    enableBid = data;
+})
 
-}
-async function switchEnableScript(req, res) {
-    // await clientRedis.set('enableBidBlur', !enableBid);
-    enableBid = !enableBid;
-
-    return res.status(200).send({title: 'ok', data: enableBid});
-
-
-}
-
-async function cancelAllBid(req, res) {
-    // await clientRedis.set('enableBidBlur', false);
-    enableBid = false;
-
-    const accountAvailable = await newCookies();
-    const promiseArray = [];
-
-    for (let index = 0; index < accountAvailable.length; index++) {
-        const account = accountAvailable[index];
-        promiseArray.push(await checkUserBid(account).then(async (data) => {
-          
-            if (data.success) {
-                const arrayPromise = [];
-                for (let i = 0; i < data.priceLevels.length; i++) {
-                    const element = data.priceLevels[i];
-                    // console.log(element);
-                    arrayPromise.push(await switchBid.deleteBid(element.contractAddress, account, element))
-                    
-                }
-                return await Promise.allSettled(arrayPromise);
-                
-
-            } else {
-                return null
-            }
-        
-
-        }));
-        
-
-
-
-    }
-    const data = await Promise.allSettled(promiseArray).then((data) => {
-        console.log(data);
-        return data
-    })
-
-
-    return res.status(200).send({title: 'ok', data: data});
-
-
-
-
+const statusEnableScript = () => {
+    return enableBid
 
 }
 
@@ -358,4 +308,4 @@ const check = async (accountAvailable) => {
 
 
 
-module.exports = { checkBid, cancelAllBid, switchEnableScript, getStatusWork };
+module.exports = { checkBid, statusEnableScript };
