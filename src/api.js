@@ -120,28 +120,5 @@ async function cancelAllBid(req, res) {
 
 }
 
-const exportEmitter = () => {
-    return Promise((resolve)=> {
-        setInterval(() => {
-            if (emitter) {
-                resolve(emitter)
-            }
-            
-        }, 200);
-    })
-};
-const exportObj = {switchEnableScript, getStatusWork, cancelBidForWallet, cancelAllBid, emitter};
-
-function e() {
-    return new Promise((resolve)=> {
-        setInterval(async () => {
-            if (await exportEmitter()) {
-                resolve(exportObj)
-
-            }
-        }, 200);
-      
-
-    })
-}
+ 
 module.exports = {switchEnableScript, getStatusWork, cancelBidForWallet, cancelAllBid, emitter}

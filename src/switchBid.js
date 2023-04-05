@@ -126,7 +126,16 @@ const switchBid = {
                 delete this.loginAccount[account.walletAddress];
                 return null
             }
-            const sign = await getSignV4(setBid.signatures[0].signData, account.walletAddress)
+            const sign = await getSignV4(setBid.signatures[0].signData, account.walletAddress).catch(e=> {
+                return null
+
+            });
+            if (!sign) {
+                this.loginAccount[account.walletAddress].count = 0;
+                return
+
+
+            }
             // console.log("sign");
             // console.log(sign);
             const bodySub = {
@@ -138,6 +147,8 @@ const switchBid = {
             // console.log(sub);
             // process.exit(0)
             if (sub?.statusCode == 400) {
+                this.loginAccount[account.walletAddress].count = 0;
+
                 return
 
             }

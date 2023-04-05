@@ -70,6 +70,7 @@ async function checkBid() {
 
 
     }
+    return
 }
 // let magicValMin = 0;
 // let magicValPlus = 0;
