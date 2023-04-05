@@ -15,7 +15,7 @@ let enableBid = true;
 
 function getEmitter(emitter) {
     emitter.on('switchWorkScript', (data) => {
-        enableBid = data;
+        // enableBid = data;
     })
 }
 
