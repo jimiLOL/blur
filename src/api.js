@@ -2,6 +2,7 @@
 const EventEmitter = require('events');
 const emitter = new EventEmitter();
 const switchBid = require('./switchBid');
+const { newCookies } = require('./getSession');
 
 ``
 const { checkUserBid } = require('./checkUserBid');
