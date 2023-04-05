@@ -7,6 +7,7 @@ const { newCookies } = require('./getSession');
 ``
 const { checkUserBid } = require('./checkUserBid');
 const { statusEnableScript, getEmitter } = require('./checkBid');
+const axios = require('axios')
 
 getEmitter(emitter)
 
