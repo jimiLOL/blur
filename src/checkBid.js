@@ -217,10 +217,19 @@ const checkMinPrice = (price, contract, { min, max }) => {
 
     }
     // const d = getBestPrice()[contract].bestPrice;
-    const p = ((Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100).toFixed(1);
-    // console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' result ' + result);
+    // const p = ((Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100).toFixed(1);
+    // // console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' result ' + result);
 
-    return p < max && p > min ? true : false;
+    // return p < max && p > min ? true : false;
+    const d = getBestPrice()[contract].bestPrice;
+    const p = ((Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100).toFixed(1);
+    const result = p < max && p > min ? true : false
+    if (contract == '0xb852c6b5892256c264cc2c888ea462189154d8d7' || contract == '0x364c828ee171616a39897688a831c2499ad972ec') {
+        console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' contract ' + contract + ' result ' + result);
+
+    }
+
+    return result;
     // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
 }
 
