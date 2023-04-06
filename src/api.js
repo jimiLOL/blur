@@ -9,7 +9,6 @@ const { checkUserBid } = require('./checkUserBid');
 const { statusEnableScript, getEmitter } = require('./checkBid');
 const axios = require('axios')
 
-getEmitter(emitter)
 
 function getStatusWork(req, res) {
     return res.status(200).send({ title: 'ok', data: statusEnableScript() });
@@ -70,13 +69,7 @@ async function switchEnableScript(req, res) {
 
 
 }
-
-async function cancelAllBid(req, res) {
-    // await clientRedis.set('enableBidBlur', false);
-    // enableBid = false;
-    emitter.emit('switchWorkScript', false);
-
-
+const cancelAllBidS = async () => {
     const accountAvailable = await newCookies();
     const promiseArray = [];
 
@@ -110,6 +103,15 @@ async function cancelAllBid(req, res) {
         console.log(data);
         return data
     })
+};
+getEmitter({emitter:emitter, cancelAllBidS:cancelAllBidS});
+
+async function cancelAllBid(req, res) {
+    // await clientRedis.set('enableBidBlur', false);
+    // enableBid = false;
+    emitter.emit('switchWorkScript', false);
+    await cancelAllBidS()
+ 
 
 
     return res.status(200).send({ title: 'ok', data: data });

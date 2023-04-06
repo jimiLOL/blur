@@ -10,13 +10,15 @@ const switchBid = require('./switchBid');
 
  
 let enableBid = true;
+let fcancelAllBidS;
 
  
 
-function getEmitter(emitter) {
+function getEmitter({emitter, cancelAllBidS}) {
     emitter.on('switchWorkScript', (data) => {
         // enableBid = data;
-    })
+    });
+    fcancelAllBidS = cancelAllBidS;
 }
 
 
@@ -173,6 +175,8 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
             }).catch(e => {
                 console.log('error cancel bid ' + contractAddress + ' bid price ' + bid.price + ' time ' + new Date());
                 console.log(e?.data);
+                errorCancel[`${contractAddress}_${ele.price}`] = true;
+
             });
             BlurPoolClass.clearBalance(account.walletAddress); // очищаем баланс после сделки, что бы получить снова
 
@@ -226,13 +230,13 @@ const checkMinPrice = (price, contract, { min, max }) => {
     // // console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' result ' + result);
 
     // return p < max && p > min ? true : false;
-    const d = getBestPrice()[contract].bestPrice;
+    // const d = getBestPrice()[contract].bestPrice;
     const p = ((Number(price) / Number(getBestPrice()[contract].bestPrice)) * 100).toFixed(1);
     const result = p < max && p > min ? true : false
-    if (contract == '0xb852c6b5892256c264cc2c888ea462189154d8d7' || contract == '0x364c828ee171616a39897688a831c2499ad972ec') {
-        console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' contract ' + contract + ' result ' + result);
+    // if (contract == '0xb852c6b5892256c264cc2c888ea462189154d8d7' || contract == '0x364c828ee171616a39897688a831c2499ad972ec') {
+    //     console.log('checkMinPrice ' + p + ' price ' + price + ' BestPrice ' + d + ' contract ' + contract + ' result ' + result);
 
-    }
+    // }
 
     return result;
     // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
@@ -287,12 +291,17 @@ const check = async (accountAvailable) => {
                         ele[price].time = new Date().getTime();
 
                         if (!bid && ele[price].bidderCount >= ele[price].count_people || bid_obj?.count?.count < 20) {
-                            const time = account.date_login < (new Date().getTime() - 1000 * 60 * 25);
+                            const time = account.date_login < (new Date().getTime() - 1000 * 60 * 26);
                             const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, { min: ele[price].min_percent, max: ele[price].max_percent });
                             if (s && !time) {
                                 // console.log('already bid ' + price);
                                 await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
 
+                            } else if (time) {
+                                await helper.timeout(10000);
+                                await fcancelAllBidS();
+
+                                // await switchBid.deleteBid(key, account, ele[price])
                             }
                             // проверем что участников торгов больше 10
 

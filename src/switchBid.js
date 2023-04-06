@@ -113,14 +113,14 @@ const switchBid = {
                 expirationTime: isoDate,
                 contractAddress: contractAddress,
             }
-            console.log(body);
+            // console.log(body);
             if (body.quantity == 0) {
                 this.loginAccount[account.walletAddress].count = 0;
 
                 return null
             };
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
-            console.log(setBid);
+            // console.log(setBid);
             if (!setBid || setBid?.statusCode == 400) {
                 // проблемы с авторизацией удаляем объект авторизации, что бы выполнить авторизацию вновь
                 delete this.loginAccount[account.walletAddress];
@@ -158,10 +158,8 @@ const switchBid = {
                 }
                 bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
                 await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60 * 16);
-                setTimeout(() => {
-                    this.loginAccount[account.walletAddress].count = 0;
+                this.loginAccount[account.walletAddress].count = 0;
 
-                }, 500);
 
 
             }
@@ -190,6 +188,9 @@ const switchBid = {
             return await cancelBid(contractAddress, this.loginAccount[account.walletAddress].accountData, bid).then(async res => {
                 console.log('function cancelBid ' + contractAddress);
                 console.log(res);
+                if (bidCount.hasOwnProperty(`${account.walletAddress}_${contractAddress}_${bid.price}`)) {
+                    bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count = 0;
+                }
                 if (res && res?.message != 'No bids found') {
 
                     this.loginAccount[account.walletAddress].delete = 0;

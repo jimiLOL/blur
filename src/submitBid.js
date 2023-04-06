@@ -48,6 +48,7 @@ async function submitBid(account, body) {
     }).catch(err => {
         console.log(err.message);
         console.log(err?.response?.data);
+        return {statusCode: 400}
     })
 
 }

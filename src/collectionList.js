@@ -91,6 +91,16 @@ const collectionsList = {
         min_percent: 99.2,
         count_people: 5
     },
+    "0x394e3d3044fc89fcdd966d3cb35ac0b32b0cda91": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5,
+    },
+    "0xbe9371326f91345777b04394448c23e2bfeaa826": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5,
+    },
     "0xacf63e56fd08970b43401492a02f6f38b6635c91": {
         max_percent: 99.7,
         min_percent: 99.2,
