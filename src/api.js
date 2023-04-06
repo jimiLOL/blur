@@ -102,7 +102,8 @@ const cancelAllBidS = async () => {
     const data = await Promise.allSettled(promiseArray).then((data) => {
         console.log(data);
         return data
-    })
+    });
+    return data
 };
 getEmitter({emitter:emitter, cancelAllBidS:cancelAllBidS});
 
@@ -110,7 +111,7 @@ async function cancelAllBid(req, res) {
     // await clientRedis.set('enableBidBlur', false);
     // enableBid = false;
     emitter.emit('switchWorkScript', false);
-    await cancelAllBidS()
+    const data = await cancelAllBidS()
  
 
 
