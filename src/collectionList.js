@@ -160,7 +160,172 @@ const collectionsList = {
         max_percent: 99.7,
         min_percent: 99.2,
         count_people: 5
-    }
+    },
+    "0x60e4d786628fea6478f785a6d7e704777c86a7c6": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xed5af388653567af2f388e6224dc7c4b3241c544": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xba30e5f9bb24caa003e9f2f0497ad287fdf95623": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x769272677fab02575e84945f03eca517acc544cc": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xe012baf811cf9c05c408e879c399960d1f305903": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xbd3531da5cf5857e7cfaa92426877b022e612cf8": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xd1258db6ac08eb0e625b75b371c023da478e94a9": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x23581767a106ae21c074b2276d25e5c3e136a68b": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x49cf6f5d44e70224e2e23fdcdd2c053f30ada28b": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x8a90cab2b38dba80c64b7734e58ee1db38b8992e": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x7bd29408f11d2bfc23c34f18275bbf23bb716bc7": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x282bdd42f4eb70e7a9d9f40c8fea0825b7f68c5d": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x59468516a8259058bad1ca5f8f4bff190d30e066": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x790b2cf29ed4f310bf7641f013c65d4560d28371": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x1a92f7381b9f03921564a437210bb9396471050c": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x79fcdef22feed20eddacbb2587640e45491b757f": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x521f9c7505005cfa19a8e5786a9c3c9c9f5e6f42": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x64a1c0937728d8d2fa8cd81ef61a9c860b7362db": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x80336ad7a747236ef41f47ed2c7641828a480baa": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x3bf2922f4520a8ba0c2efc3d2a1539678dad5e9d": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x09233d553058c2f42ba751c87816a8e9fae7ef10": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xd774557b647330c91bf44cfeab205095f7e6c367": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x892848074ddea461a15f337250da3ce55580ca85": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xbce3781ae7ca1a5e050bd9c4c77369867ebc307e": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x572e33ffa523865791ab1c26b42a86ac244df784": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x5b1085136a811e55b2bb2ca1ea456ba82126a376": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xb283dbacecd75594b66039a341a48db2d85fa37a": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xdfde78d2baec499fe18f2be74b6c287eed9511d7": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x0c2e57efddba8c768147d1fdf9176a0a6ebd5d83": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x2d33bfe1c867346543ac245396dfc6c3ebc8534f": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0xbf476fad7e4ae2d679e9e739d3704a890f53c2a2": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
+    "0x283c0bba69ebd4643cfce761b34b0206e75b2091": {
+        max_percent: 99.7,
+        min_percent: 99.2,
+        count_people: 5
+    },
     
 }
 
