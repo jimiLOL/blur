@@ -235,6 +235,9 @@ const switchBid = {
 
 
             }).catch(async e => {
+                if (this.loginAccount[account.walletAddress]) {
+                    this.loginAccount[account.walletAddress].delete = 0;
+                }
                 const loginData = await connectBlur(account);
                 if (loginData) {
                     this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
