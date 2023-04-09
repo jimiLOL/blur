@@ -121,7 +121,7 @@ const switchBid = {
             };
             const setBid = await getFromData(body, this.loginAccount[account.walletAddress].accountData);
             // console.log(setBid);
-            if (!setBid || setBid?.statusCode == 400) {
+            if (!setBid || setBid?.statusCode == 400 || !Array.isArray(setBid?.signatures)) {
                 // проблемы с авторизацией удаляем объект авторизации, что бы выполнить авторизацию вновь
                 delete this.loginAccount[account.walletAddress];
                 return null
