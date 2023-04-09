@@ -240,7 +240,7 @@ const switchBid = {
                 }
                 const loginData = await connectBlur(account);
                 if (loginData) {
-                    this.loginAccount[account.walletAddress] = { date: currentTime, accountData: loginData, count: 0, delete: 0 };
+                    this.loginAccount[account.walletAddress] = { date: new Date().getTime(), accountData: loginData, count: 0, delete: 0 };
                     console.log(this.loginAccount[account.walletAddress]);
 
                 }
