@@ -8,13 +8,13 @@ const Redis = require("ioredis");
 const clientRedis = new Redis(process.env.REDIS);
 const switchBid = require('./switchBid');
 
- 
+
 let enableBid = true;
 let fcancelAllBidS;
 
- 
 
-function getEmitter({emitter, cancelAllBidS}) {
+
+function getEmitter({ emitter, cancelAllBidS }) {
     emitter.on('switchWorkScript', (data) => {
         // enableBid = data;
     });
@@ -136,12 +136,12 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
         // console.log(copyObj[`${contractAddress}_${ele.price}`], ele);
 
         if (bid.total_eth * 0.3 > ele.total_eth || calculate.count(contractAddress) > Math.ceil((bid.total_eth / bid.price) * 0.25) || bid.time < (new Date().getTime() - 1000 * 60 * 10) || account.date_login < (new Date().getTime() - 1000 * 60 * 26)) {
-            
+
             if (account.date_login < (new Date().getTime() - 1000 * 60 * 28)) {
                 console.log('Снимаем ставку перед разлогином ');
 
             }
-       
+
             // console.log();
 
             // console.log(bid.total_eth * 0.3, ele.total_eth);
@@ -241,7 +241,7 @@ const checkMinPrice = (price, contract, { min, max }) => {
     return result;
     // мы говорим что нас интересуют сделки больше 98% от лучшего прайса, чтобы быть всегда в верху стакана
 }
-
+let cancelVal = 0;
 const check = async (accountAvailable) => {
 
     accountAvailable.forEach(async account => {
@@ -262,9 +262,23 @@ const check = async (accountAvailable) => {
                 });
                 // console.log('Price Array ' + keys);
                 if (getBestPrice()[key]?.bestPrice) {
-                    let filterPrice = keys.filter(x => Number(x) <= Number(getBestPrice()[key].bestPrice))
+                    let filterMinPrice = keys.filter(x => Number(x) <= Number(getBestPrice()[key].bestPrice));
+                    let filterMaxPrice = keys.filter(x => Number(x) >= Number(getBestPrice()[key].bestPrice));
+                    if (filterMaxPrice.length > 0) {
+                        filterMaxPrice.forEach(async price => {
+                            const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
+                            if (bid) {
+                                await switchBid.deleteBid(key, account, ele[price]);
 
-                    filterPrice.forEach(async price => {
+                            }
+
+
+                        })
+
+                    }
+
+
+                    filterMinPrice.forEach(async price => {
                         // console.log(ele[price]);
                         // console.log(ele[price].total_eth);
                         // console.log(Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance), Number(price));
@@ -294,12 +308,20 @@ const check = async (accountAvailable) => {
                             const time = account.date_login < (new Date().getTime() - 1000 * 60 * 26);
                             const s = ele[price].total_eth > BlurPoolClass.walletSetBalance[account.walletAddress].balance * 3 && Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance) >= Number(price) && checkMinPrice(price, key, { min: ele[price].min_percent, max: ele[price].max_percent });
                             if (s && !time) {
+                                cancelVal = 0;
+
                                 // console.log('already bid ' + price);
                                 await switchBid.setBid(key, account, ele[price], BlurPoolClass.walletSetBalance[account.walletAddress].balance);
 
                             } else if (time) {
-                                await helper.timeout(10000);
-                                await fcancelAllBidS();
+                                if (cancelVal < 2) {
+                                    cancelVal++;
+                                    await helper.timeout(10000);
+
+                                    await fcancelAllBidS();
+
+
+                                }
 
                                 // await switchBid.deleteBid(key, account, ele[price])
                             }

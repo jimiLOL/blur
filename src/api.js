@@ -7,7 +7,8 @@ const { newCookies } = require('./getSession');
 ``
 const { checkUserBid } = require('./checkUserBid');
 const { statusEnableScript, getEmitter } = require('./checkBid');
-const axios = require('axios')
+const axios = require('axios');
+const helper = require('./helper');
 
 
 function getStatusWork(req, res) {
@@ -75,9 +76,10 @@ const cancelAllBidS = async () => {
 
     for (let index = 0; index < accountAvailable.length; index++) {
         const account = accountAvailable[index];
+        await helper.timeout(1000);
         promiseArray.push(await checkUserBid(account).then(async (data) => {
 
-            if (data.success) {
+            if (data?.success) {
                 const arrayPromise = [];
                 for (let i = 0; i < data.priceLevels.length; i++) {
                     const element = data.priceLevels[i];

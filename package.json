@@ -1,6 +1,6 @@
 {
   "name": "blur",
-  "version": "1.7.0",
+  "version": "1.7.9",
   "main": "server_blur.js",
   "author": "Abraham",
   "license": "MIT",

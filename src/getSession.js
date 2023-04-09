@@ -109,7 +109,10 @@ async function getSign(msg = 'test', walletAddress) {
 
 }
 
-async function getSignV4(msg = 'test', walletAddress) {
+async function getSignV4(msg, walletAddress) {
+    if (!msg) {
+        return null;
+    }
     web3Client = new Web3(process.env.WEB3_PROVIDER);
     const sigObj = await messageSign(msg, walletAddress);
   

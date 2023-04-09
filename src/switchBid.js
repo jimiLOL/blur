@@ -126,7 +126,7 @@ const switchBid = {
                 delete this.loginAccount[account.walletAddress];
                 return null
             }
-            const sign = await getSignV4(setBid.signatures[0].signData, account.walletAddress).catch(e=> {
+            const sign = await getSignV4(setBid?.signatures[0]?.signData, account.walletAddress).catch(e=> {
                 return null
 
             });
