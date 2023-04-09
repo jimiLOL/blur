@@ -262,23 +262,23 @@ const check = async (accountAvailable) => {
                 });
                 // console.log('Price Array ' + keys);
                 if (getBestPrice()[key]?.bestPrice) {
-                    let filterMinPrice = keys.filter(x => Number(x) <= Number(getBestPrice()[key].bestPrice));
-                    let filterMaxPrice = keys.filter(x => Number(x) >= Number(getBestPrice()[key].bestPrice));
-                    if (filterMaxPrice.length > 0) {
-                        filterMaxPrice.forEach(async price => {
-                            const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
-                            if (bid) {
-                                await switchBid.deleteBid(key, account, ele[price]);
+                    // let filterMinPrice = keys.filter(x => Number(x) <= Number(getBestPrice()[key].bestPrice));
+                    // let filterMaxPrice = keys.filter(x => Number(x) >= Number(getBestPrice()[key].bestPrice));
+                    // if (filterMaxPrice.length > 0) {
+                    //     filterMaxPrice.forEach(async price => {
+                    //         const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
+                    //         if (bid) {
+                    //             await switchBid.deleteBid(key, account, ele[price]);
 
-                            }
-
-
-                        })
-
-                    }
+                    //         }
 
 
-                    filterMinPrice.forEach(async price => {
+                    //     })
+
+                    // }
+
+
+                    keys.forEach(async price => {
                         // console.log(ele[price]);
                         // console.log(ele[price].total_eth);
                         // console.log(Number(BlurPoolClass.walletSetBalance[account.walletAddress].balance), Number(price));
