@@ -262,7 +262,7 @@ const check = async (accountAvailable) => {
                 });
                 // console.log('Price Array ' + keys);
                 if (getBestPrice()[key]?.bestPrice) {
-                    let filterMinPrice = keys.filter(x => Number(x) <= Number(getBestPrice()[key].bestPrice));
+                    let filterMinPrice = keys.filter(x => Number(x) < Number(getBestPrice()[key].bestPrice));
                     let filterMaxPrice = keys.filter(x => Number(x) >= Number(getBestPrice()[key].bestPrice));
                     if (filterMaxPrice.length > 0) {
                         filterMaxPrice.forEach(async price => {
