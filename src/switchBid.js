@@ -151,7 +151,10 @@ const switchBid = {
             // console.log(sub);
             // process.exit(0)
             if (sub?.statusCode == 400) {
-                this.loginAccount[account.walletAddress].count = 0;
+                if (this.loginAccount[account.walletAddress]) {
+                    this.loginAccount[account.walletAddress].count = 0;
+
+                }
 
                 return
 
@@ -162,7 +165,10 @@ const switchBid = {
                 }
                 bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`].count++
                 await clientRedis.set(`blur_contract_${contractAddress}_walletAddress_${account.walletAddress}_bid_${bid.price}`, JSON.stringify({ bid: bid, count: bidCount[`${account.walletAddress}_${contractAddress}_${bid.price}`] }), 'ex', 60 * 16);
-                this.loginAccount[account.walletAddress].count = 0;
+                if (this.loginAccount[account.walletAddress]) {
+                    this.loginAccount[account.walletAddress].count = 0;
+
+                }
 
 
 
