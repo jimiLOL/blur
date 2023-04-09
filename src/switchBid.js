@@ -142,7 +142,11 @@ const switchBid = {
                 signature: sign,
                 marketplaceData: setBid.signatures[0].marketplaceData
             }
-            // console.log(bodySub);
+            // console.log(bodySub)
+            if (!this.loginAccount[account.walletAddress]) {
+                return null
+
+            }
             const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
             // console.log(sub);
             // process.exit(0)
