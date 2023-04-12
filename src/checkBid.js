@@ -265,7 +265,7 @@ const check = async (accountAvailable) => {
                 // console.log('Price Array ' + keys);
                 if (getBestPrice()[key]?.bestPrice) {
                     let filterMinPrice = keys.filter(x => Number(x) < Number(getBestPrice()[key].bestPrice));
-                    let filterMaxPrice = keys.filter(x => Number(x) >= Number(getBestPrice()[key].bestPrice));
+                    let filterMaxPrice = keys.filter(x => Number(x) > Number(getBestPrice()[key].bestPrice));
                     if (filterMaxPrice.length > 0) {
                         filterMaxPrice.forEach(async price => {
                             const bid = await clientRedis.get(`blur_contract_${key}_walletAddress_${account.walletAddress}_bid_${price}`);
