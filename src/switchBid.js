@@ -15,6 +15,7 @@ const { submitBid } = require('./submitBid');
 const { cancelBid } = require('./cancel');
 const helper = require('./helper.js');
 const taskLogin = new Map([]);
+const getFloorItems = require('./getFloorItem');
 
 
 const bidCount = {}
@@ -146,6 +147,23 @@ const switchBid = {
             if (!this.loginAccount[account.walletAddress]) {
                 return null
 
+            }
+            const floor = await getFloorItems(contractAddress, this.loginAccount[account.walletAddress].accountData);
+            if (floor && floor.statusCode != 400) {
+                if (floor?.data?.intervals?.length > 0) {
+                    const floorItem = floor.data.intervals[floor.data.intervals.length-1];
+                    if (floorItem.floor.low.price < bid.price) {   
+                        this.loginAccount[account.walletAddress].count = 0;
+                        return null
+
+                    }
+                }
+
+
+            } else {
+                console.log('Не удалось получить floor');
+                this.loginAccount[account.walletAddress].count = 0;
+                return null
             }
             const sub = await submitBid(this.loginAccount[account.walletAddress].accountData, JSON.stringify(bodySub));
             // console.log(sub);

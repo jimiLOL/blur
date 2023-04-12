@@ -218,6 +218,8 @@ const bidRouter = async (contractAddress, account, ele, bid) => {
 
 }
 
+
+
 const checkMinPrice = (price, contract, { min, max }) => {
     // const { min, max } = await getP.getPercent();
     // console.log(min, max);
