@@ -152,11 +152,23 @@ const switchBid = {
             if (floor && floor.statusCode != 400) {
                 if (floor?.data?.intervals?.length > 0) {
                     const floorItem = floor.data.intervals[floor.data.intervals.length-1];
+                    const itemOpensea = floor.data.intervals.filter(x => x.floor.close.marketplace == 'OPENSEA' ? x : null);
+                   
                     if (floorItem.floor.low.price < bid.price) {   
                         this.loginAccount[account.walletAddress].count = 0;
                         return null
 
                     }
+                    if (itemOpensea.length > 0) {
+                        if (itemOpensea[itemOpensea.length-1].floor.close.price < bid.price) {
+                            this.loginAccount[account.walletAddress].count = 0;
+                            return null
+
+                        }
+                    }
+                } else {
+                    console.log('Не удалось получить floor');
+                    return null
                 }
 
 
