@@ -19,7 +19,7 @@ const getFloorItems = async (contractAddress, account) => {
         'Sec-Fetch-Site': 'same-site'
 
     };
-    return await axios.get(`https://core-api.prod.blur.io/v1/charts/everything?collectionId=${contractAddress}&spanMs=86400000&intervalMs=300000`, { headers: header }).then(res => {
+    return await axios.get(`https://core-api.prod.blur.io/v1/charts/everything?collectionId=${contractAddress}&spanMs=86400000&intervalMs=300000`, { headers: headers }).then(res => {
         console.log('getFloorItems ' + new Date());
         return { data: res.data, statusCode: res.status };
     }).catch(err => {
