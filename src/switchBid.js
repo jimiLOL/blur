@@ -166,7 +166,7 @@ const switchBid = {
 
             }
              
-            const floor_collection = await this.floor(contractAddress, this.loginAccount[account.walletAddress].accountData);
+            const floor_collection = await this.floor.getFloor(contractAddress, this.loginAccount[account.walletAddress].accountData);
             if (floor_collection && floor_collection.statusCode != 400) {
                 if (floor_collection?.data?.intervals?.length > 0) {
                     const floorItem = floor_collection.data.intervals[floor_collection.data.intervals.length-1];
