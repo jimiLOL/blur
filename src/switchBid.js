@@ -172,7 +172,7 @@ const switchBid = {
                     const floorItem = floor_collection.data.intervals[floor_collection.data.intervals.length-1];
                     const itemOpensea = floor_collection.data.intervals.filter(x => x.floor.close.marketplace == 'OPENSEA' ? x : null);
                    
-                    if (floorItem.floor.low.price < bid.price) {   
+                    if (!floorItem.floor.hasOwnProperty('low') || floorItem.floor.low.price < bid.price) {   
                         this.loginAccount[account.walletAddress].count = 0;
                         return null
 
