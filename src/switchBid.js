@@ -46,8 +46,25 @@ const setBidVal = (countBid) => {
     }
 } 
 
+class floor {
+    constructor() {
+        // this.contractAddress = {};
+        this.floor = {};
+        this.time = {};
+    }
+    async getFloor(contractAddress, accountData) {
+        if (!this.floor[contractAddress] || !this.time[contractAddress] || new Date().getTime() > (this.time[contractAddress] - 1000 * 60)) {
+            this.floor[contractAddress] = await getFloorItems(contractAddress, accountData);
+         
+            this.time[contractAddress] = new Date().getTime();
+        }
+        return this.floor[contractAddress]
+    }
+}
+
 const switchBid = {
     loginAccount: {},
+    floor: new floor(),
     async login(account) {
         const currentTime = new Date().getTime();
 
@@ -148,11 +165,12 @@ const switchBid = {
                 return null
 
             }
-            const floor = await getFloorItems(contractAddress, this.loginAccount[account.walletAddress].accountData);
-            if (floor && floor.statusCode != 400) {
-                if (floor?.data?.intervals?.length > 0) {
-                    const floorItem = floor.data.intervals[floor.data.intervals.length-1];
-                    const itemOpensea = floor.data.intervals.filter(x => x.floor.close.marketplace == 'OPENSEA' ? x : null);
+             
+            const floor_collection = await this.floor(contractAddress, this.loginAccount[account.walletAddress].accountData);
+            if (floor_collection && floor_collection.statusCode != 400) {
+                if (floor_collection?.data?.intervals?.length > 0) {
+                    const floorItem = floor_collection.data.intervals[floor_collection.data.intervals.length-1];
+                    const itemOpensea = floor_collection.data.intervals.filter(x => x.floor.close.marketplace == 'OPENSEA' ? x : null);
                    
                     if (floorItem.floor.low.price < bid.price) {   
                         this.loginAccount[account.walletAddress].count = 0;
