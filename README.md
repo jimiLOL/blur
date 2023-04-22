@@ -1,6 +1,6 @@
 # Blur Airdrop Season 2 & Greedy Rats: Auto-Farming
 
-Dear participants! We continue our first public Blur farming event. Mining is in full swing! We hope to please the first investors with a decent drop. You can watch the mining process here. (https://www.youtube.com/watch?v=ua8bQiCdg74)
+Dear participants! We continue our first public Blur farming event. Mining is in full swing! We hope to please the first investors with a decent drop. You can watch the mining process here. [YouTube](https://www.youtube.com/watch?v=ua8bQiCdg74)
 
 As there are many questions about how to participate in this event, we will once again describe the principle of interaction. Our collection on [OpenSea](https://opensea.io/collection/greedyratsnft?search[stringTraits][0][name]=RATSPOWER&search[stringTraits][0][values][0]=500) is directly linked to this event. The entire amount from the sale of the first 100 rats goes to the bot's pool. At the end of the event, NFT owners will receive a drop proportional to their contribution.
 
